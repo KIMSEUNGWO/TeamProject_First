@@ -1,0 +1,150 @@
+ul{
+   list-style: none; 
+    color: black;
+}
+
+a{
+    color: white;
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 3rem;
+}
+
+
+.regi_area{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 5rem;
+}
+
+.regi_center{
+    width: 25rem;
+}
+
+.regi_logo{
+    font-family: "Pretendard_Bold";
+    width: 100%;
+    text-align: center;
+    margin: 3rem 0;
+    font-size: 2.2rem;
+
+}
+div[class^=regi_box]{
+    font-size: 1.2rem;
+    margin: 1rem 0;
+}
+div[class^=regi_box] input{
+    margin: 0.4rem 0;
+    width: 100%;
+    height: 2.5rem;
+    font-size: 0.9rem;
+    padding: 1rem;
+}
+
+.regi_button{
+    width: 100%;
+    height: 4rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--main-color);
+    background-color: var(--main-color);
+    margin-top: 1.5rem;
+}
+
+.regi_button{
+    width: 100%;
+    height: 3rem;
+    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: white;
+    border-radius: var(--border-radius);
+}
+
+.regi_button:hover{
+    background-color: var(--main-color-hover);
+    color: #ebebeb;
+}
+
+.regi_look{
+    display: flex;
+    margin: 1.5rem 0;
+    margin-bottom: 2.5rem;
+}
+.regi_look div a{
+    color: #6b6b6b;
+}
+
+div[class^=regi_box] input{
+    width: 100%;
+    height: 2rem;
+    border: none;
+    border-bottom: 1px solid var(--main-color);
+    outline: none;
+    border-radius: 0;
+}
+
+.regi_social_regi{
+    width: 100%;
+}
+
+.regi_social_regi [class^='regi']{
+    width: 100%;
+    height: 3.3rem;
+    background-color: white;
+    border: 1px solid rgb(203, 203, 203);
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: larger;
+    cursor: pointer;
+}
+
+.regi_social_regi [class^='regi']:hover{
+    background-color: #f3f3f3;
+}
+
+
+.regi_box_pw{
+    margin-top: 1rem;
+}
+
+input:focus{
+    outline: 2.5px solid var(--main-color);
+    border-radius: 0.3rem;
+    box-shadow: none;
+}
+
+.regi_box_phone div{
+    display: flex;
+    gap: 1rem;
+}
+
+.regi_box_phone_check{
+    display: none;
+}
+
+.phoneCheck{
+    border-radius: var(--border-radius);
+    color: white;
+    background-color: var(--main-color);
+    width: 8rem;
+    font-size: 0.9rem;
+    border: none;
+}
+
+.phoneCheck:hover{
+    background-color: var(--main-color-hover);
+}
+
+.regi_box_phone_check.active{
+    display: flex;
+    gap: 1rem;
+}
+

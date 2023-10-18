@@ -1,0 +1,390 @@
+
+/* 공통 CSS 시작 */
+*{
+    box-sizing: border-box;
+    margin: 0 auto;
+    font-family: 'Pretendard';
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('../font/Pretendard-Medium.otf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Pretendard_Light';
+    src: url('../font/Pretendard-Light.otf') format('truetype');
+}
+
+:root {
+    --border-radius: 0.5rem;
+    --border-color: #5a5849;
+    --main-color: rgb(191,171,128);
+    --main-color-hover: rgb(165 147 108);;
+}
+
+hr{
+	border-color: var(--main-color);
+}
+
+ul{
+   list-style: none; 
+    color: black;
+}
+
+
+    /* 헤더 CSS시작 */
+header{
+    width: 100%;
+    height: 6rem;
+    margin-bottom: 8rem;
+}
+
+header .header_top{
+    width: 75rem;
+}
+
+.header_top .header_top_menu{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.header_page{
+    margin: 0 1rem;
+}
+
+.header_page a{
+    color: rgb(126, 126, 126);
+    font-size: 0.9rem;
+}
+
+
+
+header .head{
+    width: 75rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+
+
+.logo{
+    margin: 0;
+    width: 15rem;
+    text-align: center;
+}
+
+.menulist{
+    display: flex;
+    margin: 0;
+    justify-content: flex-end;
+}
+
+.menu{
+    margin: 0 2rem;
+}
+
+.menu a{
+    font-size: 1.1rem;
+}
+
+
+
+.search{
+    width: 25rem;
+    height: 2.5rem;
+    border: 0.15rem solid var(--main-color);
+    display: flex;
+    position: relative;
+}
+
+#search{
+    border: none;
+    margin: 0;
+    width: 90%;
+    padding: 0 0.8rem;
+    font-size: 1rem;
+}
+
+#search:focus{
+    outline: none;
+}
+
+#search::-webkit-search-cancel-button{
+    display: none;
+}
+
+
+.search svg{
+    fill: var(--main-color);
+    cursor: pointer;
+}
+
+.calendar{
+    position: absolute;
+    top: 100%;
+    margin-top: 0.8rem;
+    width: 50rem;
+    padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    border: 0.2rem solid var(--main-color);
+    background-color: white;
+    z-index: 100;
+}
+
+.calendar.active{
+    display: none;
+}
+
+.cal_header h3{
+    margin: 0;
+}
+
+.cal{
+    flex: 1 0 40%;
+    margin-right: 2rem;
+}
+
+.cal_header{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cal_header svg{
+    width: 1rem;
+    margin: 0;
+}
+
+.cal .calTop{
+    text-align: center;
+    font-size: 1.3rem;
+    margin-top: 0.6rem;
+    font-weight: bold;
+    display: flex;
+    border: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.cal .calTop *{
+    margin: 0;
+}
+
+.cal ul{
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    padding: 0;
+    margin: 0.7rem 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.cal .days{
+    margin-bottom: 20px;
+}
+
+.cal ul li{
+    width: calc(100% / 7);
+    position: relative;
+    margin: 0.4rem 0;
+}
+
+.day{
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+.day:hover{
+    background-color: #b0b0b0;
+    border-radius: 1rem;
+}
+.cal div #nextBtn{
+    margin-left: 1rem;
+    line-height: 1rem;
+}
+.cal div #nextBtn svg{
+    width:0.8rem;
+    fill: black;
+    
+}
+
+.cal div #preBtn{
+    margin-right: 1rem;
+    line-height: 1rem;
+}
+.cal div #preBtn svg{
+    width:0.8rem;
+    fill: black;
+}
+
+.hidden{
+    display: none;
+}
+
+.select{
+    background-color: yellow;
+    color: black;
+}
+
+.disabled{
+    color: #b0b0b0;
+}
+
+
+.disabled:hover{
+    background-color: white;
+}
+
+.today{
+    background-color: rgb(218, 94, 94);
+    border-radius: 1rem;
+}
+
+#searchForm{
+    width: 100%;
+    text-align: right;
+    display: flex;
+    align-items: center;
+
+}
+
+#searchForm > div{
+    margin: 0;
+    width: 15rem;
+    text-align: left;
+}
+
+#searchForm div:first-child{
+    width: 23rem;
+    
+    margin-left: 0.7rem;
+}
+
+#searchForm div span{
+    font-size: 1.2rem;
+}
+
+#searchForm button{
+    width: 7rem;
+    height: 2rem;
+    border-radius: var(--border-radius);
+    outline-color: var(--border-color);
+    border-color: var(--border-color);
+    font-size: 1rem;
+    margin-right: 0;
+    
+}
+
+.submenu{
+    display: none;
+    padding: 0;
+    
+}
+
+.submenu li{
+    padding: 0.5rem;
+    
+}
+
+.categoryMenu li{
+    width: 180px;
+    height: 40px;
+    position: relative;
+    float: left;
+
+    
+ 
+}
+
+.categoryMenu li a{
+    display: inline-block;
+    
+    width: 100%;
+    height: 100%;
+    line-height: 20px;
+
+    font-size: 1em;
+    font-weight: 800;
+    margin-top: 10px;
+
+    border-radius: 0.5rem;
+    font-family: 'Pretendard_light';
+    
+    color: #454438;
+    
+}
+
+.categoryMenu li a:hover{
+    color: #d9caaa;
+}
+
+.categoryMenu li a:hover + .submenu,  .submenu:hover{
+	display: block;
+	background-color: white;
+    max-height: 500px;
+}
+
+.submenu{
+    float: left;
+    max-height: 3px;
+    z-index: 200;
+    /*background-color: #efe9da;;*/
+    border-radius: 0.4rem;
+    border : 1px solid #454438;
+    width: 120px;
+    position: relative;
+    align-self: center;
+    padding-left: 0.5rem;
+}
+
+.categoryMenu .submenu li {
+	z-index:300;
+	padding: 0 0.5rem;
+}
+
+.categoryMenu .submenu li a{
+    font-size: 1em;
+    font-family: 'Pretendard_light';
+}
+.categorytop{
+    width: 75rem;
+}
+
+.top{
+    width: 75rem;
+    height: 100px;
+}
+
+#category-size{
+    width:105px;
+    height: 30px;
+    text-align: center;
+}
+
+#subcategory-size{
+    width: 100px;
+    text-align: left;
+
+}
+
+.message-box{
+    border: 2px solid black;
+    width: 75rem;
+}
+
+.fixed {
+  position: fixed;
+}
+.errors{
+    color: red;
+    font-size: 0.9rem;
+}
+.errorsborder{
+    border: 2px solid rgb(255, 114, 114);
+}

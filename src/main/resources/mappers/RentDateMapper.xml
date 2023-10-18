@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="july.lease.dao.rentDate.RentDateMapper">
+
+	<insert id="save">
+        <selectKey keyProperty="rentDateId" resultType="Long" order="BEFORE">
+            select seq_rent_date_id.nextval
+			from dual
+        </selectKey>
+        insert into rent_date(rent_date_id, product_id,
+        			rent_able_start_date, rent_able_end_date)
+		values(#{rentDateId}, #{productId}, 
+			   TO_DATE(#{rentAbleStartDate}, 'yyyy-mm-dd hh24:mi:ss'), 
+			   TO_DATE(#{rentAbleEndDate}, 'yyyy-mm-dd hh24:mi:ss'))
+    </insert>
+    
+    <select id="findByRentDateId" resultType="RentDate">
+		select rent_date_id, product_id, rent_able_start_date, rent_able_end_date
+		from rent_date
+		where rent_date_id = #{rentDateId}
+	</select>
+	
+	<select id="findByProductId" resultType="RentDate">
+		select rent_date_id, product_id, 
+    	to_char(rent_able_start_date, 'YYYY-MM-DD') as rent_able_start_date,
+    	to_char(rent_able_end_date, 'YYYY-MM-DD') as rent_able_end_date
+		from rent_date
+		where product_id = #{productId}
+	</select>
+	
+	<!-- 2:대기, 3:승인 // order_confirm_status가 대기와 승인인 데이터만 조회 -->
+	<select id="checkOrders" resultType="july.lease.dto.RentOrderStatusDto">
+		select a.rent_able_start_date, a.rent_able_end_date, 
+       		   b.order_rent_start_date, b.order_rent_end_date, 
+       		   b.order_confirm_status
+			   from rent_date a
+			   inner join orders b 
+			   		on a.rent_date_id = b.rent_date_id
+			   where a.product_id = #{productId} and b.order_confirm_status in (2,3,4)
+	</select>
+	
+	<select id="rentOrderStatusSize" resultType="int">
+		select count(*)
+		from orders a
+		left join rent_date b 
+			on a.rent_date_id = b.rent_date_id
+		where b.rent_able_start_date = to_date(#{rentAble.rentAbleStartDate}, 'YYYY/MM/DD') 
+		and b.rent_able_end_date = to_date(#{rentAble.rentAbleEndDate}, 'YYYY/MM/DD')
+		and a.product_id = #{productId}
+		and a.order_confirm_status in(2,3,4)
+	</select>
+	
+	<delete id="delete">
+		delete 
+		from rent_date
+		where rent_date_id = #{rentDateId}
+	</delete>
+	
+	<select id="findRentAbleDateByProductId" resultType="String">
+		select 
+		to_char(a.rent_able_start_date,'yyyy-mm-dd') || '|' || to_char(a.rent_able_end_date, 'yyyy-mm-dd') as rent_date
+		from rent_date a
+		inner join product b
+		on a.product_id = b.product_id
+		where b.product_id = #{productId}
+		order by a.rent_able_start_date asc
+	</select>
+	
+	<select id="findRentDateIdByRentAbleStartDateAndProductId" resultType="Long">
+		select a.rent_date_id
+		from rent_date a
+		inner join product b
+			on a.product_id = b.product_id
+		where to_char(a.rent_able_start_date, 'yyyy-mm-dd') = #{startDate} and b.product_id = #{productId}
+	</select>
+	
+	<select id="findRentAbleDatesWithinOrderDates" resultType="july.lease.dto.RentAbleDateDto">
+		<![CDATA[
+    WITH StartDate AS (
+        SELECT MIN(a.rent_able_start_date) as min_start_date
+        FROM rent_date a
+        INNER JOIN product b ON a.product_id = b.product_id
+        WHERE b.product_id = #{productId}
+        AND #{orderRentStartDate} >= a.rent_able_start_date
+        AND #{orderRentStartDate} <= a.rent_able_end_date
+    ),
+
+    EndDate AS (
+        SELECT MAX(a.rent_able_end_date) as max_end_date
+        FROM rent_date a
+        INNER JOIN product b ON a.product_id = b.product_id
+        WHERE b.product_id = #{productId}
+        AND #{orderRentEndDate} >= a.rent_able_start_date
+        AND #{orderRentEndDate} <= a.rent_able_end_date
+    )
+
+    SELECT to_char(a.rent_able_start_date, 'yyyy-mm-dd') as rent_able_start_date, 
+           to_char(a.rent_able_end_date, 'yyyy-mm-dd') as rent_able_end_date 
+    FROM rent_date a
+    INNER JOIN product b ON a.product_id = b.product_id
+    CROSS JOIN StartDate
+    CROSS JOIN EndDate
+    WHERE b.product_id = #{productId}
+    AND a.rent_able_start_date >= min_start_date
+    AND a.rent_able_end_date <= max_end_date
+    ORDER BY a.rent_able_start_date ASC
+    ]]>
+	</select>
+	
+	
+	
+    
+</mapper>

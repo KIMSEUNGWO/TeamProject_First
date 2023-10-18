@@ -1,0 +1,218 @@
+ul{
+    list-style: none; 
+     color: black;
+ }
+ 
+ a{
+     color: black;
+     text-decoration: none;
+ }
+ 
+/* 공통 CSS 종료 */
+
+main{
+    width: 100%;
+    margin-top: 5rem;
+}
+
+.wrapper{
+    width: 75rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.wrapper *{
+    margin: 0;
+}
+
+.wrapper .myPageMain{
+    width: 62rem;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+}
+
+.totalStatus{
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+}
+
+.totalStatus .totalBox{
+    border: 1px solid rgb(236, 236, 236);
+    border-radius: var(--border-radius);
+    width: calc(100%/4);
+    height: 7rem;
+
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+}
+
+.totalBox a{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 70% 30%;
+}
+
+.totalBox a div:first-child{
+    display: grid;
+    grid-template-columns: 60% 40%;
+}
+
+.totalBox a div span:first-child{
+    font-size: 1.4rem;
+    padding: 1rem;
+}
+
+.totalBox a div span:last-child{
+    text-align: center;
+    font-size: 1.3rem;
+    line-height: 7rem;  /* .totalBox height 사이즈와 같음*/
+}
+
+.totalBox a div:last-child{
+    width: 100%;
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+
+.orderBox{
+    background-color: rgb(76, 216, 95);
+}
+.sellBox{
+    background-color: rgb(255, 96, 96);
+}
+.myitemBox{
+    background-color: rgb(127, 165, 255);
+}
+.orderlistBox{
+    background-color: rgb(255, 255, 194);
+}
+
+/* totalStatus 끝 */
+/* myLeaseStatus 시작*/
+
+.myLeaseStatus ul{
+    display: flex;
+    text-align: center;
+    height: 3rem;
+    align-items: center;
+    padding-left: 10px;
+}
+
+.myLeaseStatus .listMain{
+    height: 7rem;
+}
+
+.listMain.empty span{
+	color: #b0b0b0;
+    width: 100%;
+}
+
+.leaseTitle{
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    border-bottom: 1px solid rgb(185, 185, 185);
+}
+
+
+.myLeaseStatus ul:last-child{
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+.myLeaseStatus ul li:nth-child(1){
+    width: 8%;
+}
+.myLeaseStatus ul li:nth-child(2){
+    width: 10%;
+}
+.myLeaseStatus ul li:nth-child(3){
+    width: 29%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.myLeaseStatus ul li:nth-child(4){
+    width: 11%;
+}
+.myLeaseStatus ul li:nth-child(5){
+    width: 11%;
+}
+.myLeaseStatus ul li:nth-child(6){
+    width: 8%;
+}
+.myLeaseStatus ul li:nth-child(7){
+    width: 8%;
+}
+.myLeaseStatus ul li:nth-child(8){
+    width: 15%;
+}
+
+.myLeaseStatus{
+    width: 100%;
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+    border-radius: var(--border-radius);
+}
+
+.myPageTitle{
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.productImage img{
+    width: 70%;
+    height: 70%;
+    border-radius: 0.85rem;
+}
+
+.productLeaseConfirm{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.productLeaseConfirm button{
+    width: 3.5rem;
+    height: 2rem;
+    font-size: 1rem;
+    border: 2px solid black;
+    border-radius: var(--border-radius);
+    color: rgb(250, 250, 250);
+    cursor: pointer;
+}
+
+.productLeaseConfirm .confirmBtn{
+    background-color: var(--confirm-color);
+}
+
+.productLeaseConfirm .cancelBtn{
+    background-color: var(--cancel-color);
+    
+}
+
+.productLeaseConfirm .confirmBtn:hover{
+    background-color: var(--confirm-color-hover);
+}
+
+.productLeaseConfirm .cancelBtn:hover{
+    background-color: var(--cancel-color-hover);
+}
+
+.chatBtn{
+    background-color: var(--main-color);
+    
+}
+.chatBtn:hover{
+    background-color: var(--main-color-hover);
+}
+
+.sendBtn{
+    background-color: rgb(62, 52, 204);
+    
+}
+.sendBtn:hover{
+    background-color: rgb(81, 80, 204);
+}
+
+
+/*끝*/

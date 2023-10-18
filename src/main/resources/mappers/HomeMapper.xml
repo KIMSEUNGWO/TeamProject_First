@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="july.lease.dao.home.HomeMapper">
+	<select id="countProduct" resultType="int">
+		SELECT COUNT(*) FROM PRODUCT
+	</select>
+	
+	<!-- 페이징 메인 전체상품 -->
+	<select id="getAllItem" resultType="july.lease.dto.HomeItemDto">
+		SELECT 
+			productId,
+			productName,
+			TO_CHAR(productPrice, 'FM999,999,999') as productPrice,
+			storeImageName				
+		FROM (
+			SELECT  p.PRODUCT_ID as productId,
+				    p.PRODUCT_NAME as productName,
+				    p.PRODUCT_PRICE productPrice,
+				    pi.STORE_IMAGE_NAME AS storeImageName,
+				    ROW_NUMBER() OVER (PARTITION BY p.PRODUCT_ID ORDER BY pi.UPLOAD_IMAGE_NAME DESC) AS rn
+			FROM 	
+					PRODUCT P
+			LEFT JOIN
+			    	product_image pi ON p.PRODUCT_ID = pi.PRODUCT_ID
+			WHERE P.PRODUCT_END_STATUS = 'N'
+			ORDER BY PRODUCT_CREATE_DATE DESC
+			)
+		WHERE RN = 1
+	</select>
+	
+		<select id="getAllItemAJAX" resultType="july.lease.dto.HomeItemDto">
+			SELECT A.productId, A.productName, TO_CHAR(A.productPrice, 'FM999,999,999') as productPrice, A.storeImageName
+			FROM (
+					SELECT productId, productName, productPrice, storeImageName, ROWNUM as RNUM			
+					FROM (
+						SELECT  p.PRODUCT_ID as productId,
+							    p.PRODUCT_NAME as productName,
+							    p.PRODUCT_PRICE productPrice,
+							    pi.STORE_IMAGE_NAME AS storeImageName,
+							    ROW_NUMBER() OVER (PARTITION BY p.PRODUCT_ID ORDER BY pi.UPLOAD_IMAGE_NAME DESC) AS rn
+						FROM 	
+								PRODUCT P
+						LEFT JOIN
+						    	product_image pi ON p.PRODUCT_ID = pi.PRODUCT_ID
+						WHERE P.PRODUCT_END_STATUS = 'N'
+						ORDER BY PRODUCT_CREATE_DATE DESC
+						)
+					WHERE RN = 1
+			    ) A
+			WHERE A.RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+
+	<select id="popularItem" resultType="july.lease.dto.HomePopularItemDto"> <!-- 메인 인기상품 -->
+		SELECT distinct PRODUCT.PRODUCT_ID AS productId, PRODUCT_NAME productName, TO_CHAR(PRODUCT_PRICE,'FM999,999,999') AS productPrice, P_IMAGE.STORE_IMAGE_NAME, cnt.dateCount
+		FROM ORDERS
+		JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		LEFT JOIN (SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM FROM PRODUCT_IMAGE) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		JOIN (
+		    SELECT ORDERS.PRODUCT_ID as productId,  SUM(ORDER_RENT_END_DATE - ORDER_RENT_START_DATE + 1) AS dateCount
+		    FROM ORDERS
+		    JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		    WHERE PRODUCT_END_STATUS = 'N'
+		    GROUP BY ORDERS.PRODUCT_ID
+		    ) cnt ON (cnt.productId = PRODUCT.PRODUCT_ID)
+		ORDER BY DATECOUNT DESC
+	</select>
+	
+
+	
+	
+</mapper>

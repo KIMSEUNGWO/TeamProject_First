@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="july.lease.dao.message.MessageMapper">
+
+	<!-- 메세지 조회 -->
+	<select id="getMessage" resultType="Message">
+		select m.room_no, m.product_id, m.message_read_status, mc.message_text, my_mem.member_nickname as sender, m.my_id,
+		    your_mem.member_nickname as reciver, m.your_id,
+		    case  when to_char(m.message_create_date, 'yyyy-mm-dd') = to_char(sysdate, 'yyyy-mm-dd') 
+		                    then to_char(m.message_create_date, 'HH24:MI:SS')
+		                    else to_char(m.message_create_date, 'YYYY-MM-DD')
+		                    end as message_Create_Date
+		from message m
+		inner join message_content mc on m.message_content_id = mc.message_content_id
+		inner join member my_mem on m.my_id = my_mem.member_id
+		inner join member your_mem on m.your_id = your_mem.member_id
+		where room_no=#{roomNo} and message_delete_status = 'N'
+		order by m.message_id
+	</select>
+	
+	<!-- 메세지에 대한 상품 조회 -->
+	<select id="getOneProductInfo" resultType="july.lease.dto.ProductMessageInfoDto">
+		select product_name, product_price, location, member_nickname as seller_name, store_image_name, member_id
+		from (
+		    select p.product_name, p.product_price, p.location, m.member_nickname, i.store_image_name,p.member_id,
+		    row_number() over(partition by i.product_id order by product_image_id) as rn
+		    from product p
+		    inner join member m on p.member_id = m.member_id
+		    inner join product_image i on p.product_id = i.product_id
+		    where p.product_id = #{productId}
+		)where rn=1
+	</select>
+
+	<!-- 리스트 조회 -->
+	<select id="getMyAllMessageList" resultType="july.lease.dto.MyAllMessageListDto">
+		select m.room_no, m.product_id, m.message_read_status, mc.message_text, my_mem.member_nickname as sender, m.my_id,
+		    your_mem.member_nickname as reciver, m.your_id, p.product_name, i.store_image_name,
+		    case  when to_char(m.message_create_date, 'yyyy-mm-dd') = to_char(sysdate, 'yyyy-mm-dd') 
+						    then to_char(m.message_create_date, 'HH24:MI:SS')
+						    else to_char(m.message_create_date, 'YYYY-MM-DD')
+						    end as message_Create_Date
+		from message m
+		inner join message_content mc on m.message_content_id = mc.message_content_id
+		inner join member my_mem on m.my_id = my_mem.member_id
+		inner join member your_mem on m.your_id = your_mem.member_id
+		inner join product p on m.product_id = p.product_id
+		inner join (select min(product_image_id) as image_id, store_image_name,product_id from product_image group by product_id, store_image_name, product_id) i 
+		    on m.product_id = i.product_id
+		where message_id in (select max(message_id) as message_id from message group by room_no) and
+		    (my_id=#{memberId} or your_id=#{yourId}) and m.message_delete_status='N'
+		order by m.message_create_date desc
+	</select>
+	
+	<insert id="insertMessageContent">
+		insert into message_content(message_content_id, message_text) values(SEQ_MESSAGE_CONTENT_ID.NEXTVAL, #{messageText})
+	</insert>
+	
+	<insert id="insertMessage">
+		insert into message(message_id, my_id, your_id, message_content_id, message_read_status, message_delete_status, message_create_date, product_id, room_no) 
+		values(SEQ_MESSAGE_ID.NEXTVAL, #{myId}, #{yourId}, SEQ_MESSAGE_CONTENT_ID.CURRVAL, 'N', 'N', sysdate, #{productId}, #{roomNo})
+	</insert>
+	
+	<select id="findRoomNo" resultType="Long">
+		select room_no
+		from message
+		where (my_id=#{myId} or your_id=#{myId}) and product_id=#{productId}
+		group by room_no
+	</select>
+	
+	<select id="maxRoomNo" resultType="Long">
+		select max(room_no) from message
+	</select>
+	
+	<update id="readCheck">
+		update message
+		set message_read_status='Y'
+		where room_no=#{roomNo} and your_id=#{myId} and message_read_status='N'
+	</update>
+	
+	<select id="countUnreadMessage" resultType="int">
+		select count(message_read_status) from message
+		<choose>
+			<when test="roomNo==null">
+				where your_id=#{yourId} and message_read_status='N' and message_delete_status = 'N'
+			</when>
+			<otherwise>
+				where room_no=#{roomNo} and your_id=#{yourId} and message_read_status='N' and message_delete_status = 'N'
+			</otherwise>
+		</choose>
+	</select>
+	
+	<update id="deleteMessage">
+		update message set message_delete_status = 'Y' where room_no=#{roomNo}
+	</update>
+</mapper>

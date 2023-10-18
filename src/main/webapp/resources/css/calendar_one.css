@@ -1,0 +1,188 @@
+
+/* 공통 CSS 시작 */
+*{
+    box-sizing: border-box;
+    margin: 0 auto;
+    font-family: 'Pretendard';
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('../font/Pretendard-Medium.otf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Pretendard_Light';
+    src: url('../font/Pretendard-Light.otf') format('truetype');
+}
+
+:root {
+    --border-radius: 0.5rem;
+    --border-color: #b0b0b0;
+    --main-color: rgb(0, 0, 0);
+    --main-color-hover: rgb(80, 80, 80);
+}
+
+ul{
+   list-style: none; 
+    color: black;
+}
+
+a{
+    color: black;
+    text-decoration: none;
+}
+
+
+/* 캘린더 시작 */
+
+.subCalendar{
+    width: 30rem;
+    padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    border: 0.2rem solid var(--border-color);
+    background-color: white;
+    border-radius: 1rem;
+}
+
+.subCalendar.active{
+    display: none;
+}
+
+.subCal_header h3{
+    margin: 0;
+}
+
+.subCal{
+    flex: 1 0 40%;
+    margin-right: 2rem;
+}
+
+.subCal_header{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.subCal_header svg{
+    width: 1rem;
+    margin: 0;
+}
+
+.subCal .subCalTop{
+    text-align: center;
+    font-size: 1.3rem;
+    margin-top: 0.6rem;
+    font-weight: bold;
+    display: flex;
+    border: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.subCal .subCalTop *{
+    margin: 0;
+}
+
+.subCal ul{
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    padding: 0;
+    margin: 0.7rem 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.subCal .subDays{
+    margin-bottom: 20px;
+}
+
+.subCal ul li{
+    width: calc(100% / 7);
+    position: relative;
+    margin: 0.4rem 0;
+}
+
+.subDay{
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+.subDay:hover{
+    background-color: #b0b0b0;
+    border-radius: 1rem;
+}
+
+.subCal div #subPreBtn{
+    margin-right: 1rem;
+    line-height: 1rem;
+}
+.subCal div #subPreBtn svg{
+    width:0.8rem;
+    fill: black;
+}
+
+.subCal div #subNextBtn{
+    margin-left: 1rem;
+    line-height: 1rem;
+}
+
+.subCal div #subNextBtn svg{
+    width:0.8rem;
+    fill: black;
+}
+
+.hidden{
+    display: none;
+}
+
+.select{
+    background-color: yellow;
+}
+
+.disabled{
+    color: #b0b0b0;
+}
+
+
+.disabled:hover{
+    background-color: white;
+}
+
+.today{
+    background-color: rgb(218, 94, 94);
+    border-radius: 1rem;
+}
+
+#subSearchForm{
+    width: 100%;
+    text-align: right;
+    display: flex;
+    align-items: center;
+
+}
+
+#subSearchForm > div{
+    margin: 0;
+    width: 50%;
+    text-align: left;
+}
+
+#subSearchForm div:first-child{  
+    margin-left: 0.7rem;
+}
+
+#subSearchForm div span{
+    font-size: 1rem;
+    margin: 0.5rem;
+}
+
+.subCal_location{
+    width: 35rem;
+    margin: 0;
+
+}
+/* 캘린더 종료 */
+

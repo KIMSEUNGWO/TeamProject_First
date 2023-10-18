@@ -1,0 +1,320 @@
+ul{
+    list-style: none; 
+     color: black;
+ }
+ 
+ a{
+     color: black;
+     text-decoration: none;
+ }
+
+main{
+    width: 100%;
+    margin-top: 5rem;
+}
+
+.wrapper{
+    width: 75rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.wrapper *{
+    margin: 0;
+}
+
+.wrapper .myName{
+    font-size: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.wrapper .myMenuList{
+    font-size: 1.2rem;
+}
+
+.myMenu{
+    margin: 1.5rem 0;
+}
+
+.wrapper .myPageMain{
+    width: 62rem;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+}
+
+.myLeaseStatus{
+    width: 100%;
+    border-radius: var(--border-radius);
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+}
+
+.myPageTitle{
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.myLeaseStatus ul{
+    display: flex;
+    text-align: center;
+    align-items: center;
+    padding: 0;
+}
+
+.listMain{
+    height: 6rem;
+}
+
+.listMain .productImage a img{
+    width: 5rem;
+}
+
+.listMain.empty span{
+	color: #b0b0b0;
+    width: 100%;
+}
+
+.productTitle{
+    padding-left: 1rem;
+}
+
+.leaseTitle{
+    height: 2.5rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgb(100, 100, 100);
+}
+
+.myLeaseStatus ul li:nth-child(1){
+    width: 15%;
+}
+.myLeaseStatus ul li:nth-child(2){
+    width: 25%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.myLeaseStatus ul li:nth-child(3){
+    width: 15%;
+}
+.myLeaseStatus ul li:nth-child(4){
+    width: 10%;
+}
+.myLeaseStatus ul li:nth-child(5){
+    width: 15%;
+}
+.myLeaseStatus ul li:nth-child(6){
+    width: 20%;
+}
+
+#image-text{
+    position: absolute;
+    top:35%;
+    transform: translate(-50%, -50%);
+    right: -50%;
+    color: black;
+    border-radius: 0.6rem;
+    width: 100%;
+    height: 75%;
+    text-align: center;
+    font-weight: bold;
+    font-size: large;
+    border: 0px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+
+.productLeaseConfirm{
+    justify-content: space-evenly;
+    line-height: 30px;
+}
+
+.productStatus button{
+    display: inline-block;
+    width: 5rem;
+    height: 2rem;
+    line-height: 2rem;
+    font-size: 1rem;
+    border-color: var(--main-color);
+    border-radius: var(--border-radius);
+    color: rgb(250, 250, 250);
+    cursor: pointer;
+    border: 2px solid black;
+}
+
+.productStatus .wait{
+    background-color: var(--confirm-color);
+}
+
+.productStatus .rent{
+    background-color: var(--cancel-color);
+    
+}
+
+.productStatus .wait:hover{
+    background-color: var(--confirm-color-hover);
+}
+
+.productStatus .rent:hover{
+    background-color: var(--cancel-color-hover);
+}
+
+.productImage img{
+    width: 200%;
+    height: 70%;
+    border-radius: 0.85rem;
+    vertical-align: middle;
+}
+
+.itemList{
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.items{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 10px;
+}
+
+.items .item{
+    width: 13.75rem;
+    height: 19rem;
+    position: relative;
+    border: 1px solid #b0b0b0;
+    border-radius: 0.85rem;
+}
+
+.item.empty{
+    text-align: center;
+    line-height: 5rem;
+    width: 100%;
+    height: 5rem;
+}
+
+.item.empty span{
+    color: #b0b0b0;
+}
+
+.itemImage{
+    width: 100%;
+    height: 13.675rem;
+}
+
+.itemImage img{
+    width:100%;
+    border-radius: 0.85rem;
+    opacity: 0.6;
+}
+
+.itemTitle{
+    width: 100%;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    padding: 0 1rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    background-color: white;
+}
+
+.itemPrice{
+    width: 100%;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    padding-left: 1rem;
+    display: flex;
+    gap: 0.3rem;
+    justify-content: flex-end;
+}
+
+.itemPrice .price{
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.itemPrice .price_day{
+    line-height: 3rem;
+    margin-right: 0.5rem;
+}
+
+
+.leaseList{
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.product-no{
+    height: 2rem;
+    padding-left: 1%;
+    padding-right: 1%;
+}
+
+/* totalStatus 시작*/
+.totalStatus{
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.totalStatus .totalBox{
+    border: 1px solid rgb(236, 236, 236);
+    border-radius: var(--border-radius);
+    width: calc(100%/4);
+    height: 7rem;
+    display: grid;
+    grid-template-rows: 70% 30%;
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+}
+
+.totalStatus .totalBox:nth-child(3){
+    width: calc(100% / 2);
+}
+
+.totalStatus .totalBox:nth-child(3) div span:last-child{
+    text-align: right;
+    padding-right: 2rem;
+}
+
+
+
+.totalBox div:first-child{
+    display: grid;
+    grid-template-rows:  50% 50%;
+}
+
+.totalBox div span:first-child{
+    padding: 1rem 0 0 1rem;
+    font-size: 1.3rem;
+}
+
+.totalBox div span:last-child{
+    text-align: right;
+    padding-right: 2rem;
+    line-height: 2.5rem;
+    font-size: 1.3rem;
+}
+
+.totalBox div:last-child{
+    width: 100%;
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+
+.orderBox{
+    background-color: rgb(76, 216, 95);
+}
+.sellBox{
+    background-color: rgb(255, 96, 96);
+}
+.myitemBox{
+    background-color: rgb(127, 165, 255);
+}
+.orderlistBox{
+    background-color: rgb(255, 255, 194);
+}
+
+/* totalStatus 끝 */
+
+

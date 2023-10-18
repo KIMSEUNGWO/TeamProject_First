@@ -1,0 +1,811 @@
+
+/* 공통 CSS 시작 */
+*{
+  box-sizing: border-box;
+  margin: 0 auto;
+  font-family: Pretendard;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../font/Pretendard-Medium.otf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Pretendard_Light';
+  src: url('../font/Pretendard-Light.otf') format('truetype');
+}
+
+:root {
+  --border-radius: 0.5rem;
+  --border-color: #b0b0b0;
+  --main-color: rgb(0, 0, 0);
+  --main-color-hover: rgb(80, 80, 80);
+}
+
+ul{
+ list-style: none; 
+  color: black;
+}
+
+a{
+  color: black;
+  text-decoration: none;
+}
+
+  /* 헤더 CSS시작 */
+header{
+  width: 100%;
+  height: 6rem;
+}
+
+header .header_top{
+  width: 75rem;
+}
+
+.header_top .header_top_menu{
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.header_page{
+  margin: 0 1rem;
+}
+
+.header_page a{
+  color: rgb(126, 126, 126);
+  font-size: 0.9rem;
+}
+
+
+
+header .head{
+  width: 75rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  /* background-color: antiquewhite; */
+}
+
+header .category{
+  width: 75rem;
+  height: 2rem
+}
+  /* 헤더 CSS시작 */
+
+
+.logo{
+  /* background-color: aqua; */
+  margin: 0;
+  width: 15rem;
+  text-align: center;
+}
+
+.menulist{
+  display: flex;
+  margin: 0;
+  justify-content: flex-end;
+}
+
+.menu{
+  margin: 0 2rem;
+}
+
+.menu a{
+  font-size: 1.1rem;
+}
+
+.category{
+  display: flex;
+}
+
+.category div{
+  margin: 0.5rem 1.3rem;
+  height: 2rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.category div a{
+  width: 100%;
+  height: 100%;
+  font-family: 'Pretendard_light';   
+}
+
+.search{
+  width: 25rem;
+  height: 2.5rem;
+  /* background-color: antiquewhite; */
+  border: 0.15rem solid var(--border-color);
+  display: flex;
+  position: relative;
+}
+
+#search{
+  border: none;
+  margin: 0;
+  width: 90%;
+  padding: 0 0.8rem;
+  font-size: 1rem;
+}
+
+#search:focus{
+  outline: none;
+}
+
+#search::-webkit-search-cancel-button{
+  display: none;
+}
+
+
+.search svg{
+  fill: var(--border-color);
+  cursor: pointer;
+}
+
+.calendar{
+  position: absolute;
+  top: 100%;
+  margin-top: 0.8rem;
+  width: 50rem;
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  border: 0.2rem solid var(--border-color);
+  background-color: white;
+  z-index: 110;
+}
+
+.calendar.active{
+  display: none;
+}
+
+.cal_header h3{
+  margin: 0;
+}
+
+.cal{
+  flex: 1 0 40%;
+  margin-right: 2rem;
+}
+
+.cal_header{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cal_header svg{
+  width: 1rem;
+  margin: 0;
+}
+
+.cal .calTop{
+  text-align: center;
+  font-size: 1.3rem;
+  margin-top: 0.6rem;
+  font-weight: bold;
+  display: flex;
+  border: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal .calTop *{
+  margin: 0;
+}
+
+.cal ul{
+  display: flex;
+  flex-wrap: wrap;
+  text-align: center;
+  padding: 0;
+  margin: 0.7rem 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.cal .days{
+  margin-bottom: 20px;
+}
+
+.cal ul li{
+  width: calc(100% / 7);
+  position: relative;
+  margin: 0.4rem 0;
+}
+
+.day{
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+.day:hover{
+  background-color: #b0b0b0;
+  border-radius: 1rem;
+}
+.cal div #nextBtn{
+  margin-left: 1rem;
+  line-height: 1rem;
+}
+.cal div #nextBtn svg{
+  width:0.8rem;
+  fill: black;
+  
+}
+
+.cal div #preBtn{
+  margin-right: 1rem;
+  line-height: 1rem;
+}
+.cal div #preBtn svg{
+  width:0.8rem;
+  fill: black;
+}
+
+.hidden{
+  display: none;
+}
+
+.select{
+  background-color: yellow;
+}
+
+.disabled{
+  color: #b0b0b0;
+}
+
+
+.disabled:hover{
+  background-color: white;
+}
+
+.today{
+  background-color: rgb(218, 94, 94);
+  border-radius: 1rem;
+}
+
+#searchForm{
+  width: 100%;
+  text-align: right;
+}
+
+#searchForm button{
+  width: 7rem;
+  height: 2rem;
+  border-radius: var(--border-radius);
+  outline-color: var(--border-color);
+  border-color: var(--border-color);
+  font-size: 1rem;
+}
+
+/* 공통 CSS 종료 */
+
+
+.product {
+    width: 75rem;
+    display: flex;
+    margin-bottom: 4rem;
+    position: relative;
+  }
+  
+.soldOut{
+	width: 100%;
+	height: 100%;
+	display: flex;
+	margin-bottom: 4rem;
+	position: absolute;
+	background-color: rgb(208 208 208 / 37%);;
+	opacity: 4;
+}
+
+.soldOut span{
+	position: absolute;
+    top: 40%;
+    left: 40%;
+    color: #e65151;
+    font-size: 2rem;
+}
+  .product_section_one {
+    margin-top: 2rem;
+  }
+ 
+  #container {
+    width:35rem;
+    height: 35rem;
+    border:1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+  }
+  
+  .arrow {
+    z-index:100;
+    font-size:2em;
+    padding:10px;
+    background:#dddddd00;
+    color:#222;
+    opacity:0.2;
+    margin: 0;
+    border: 0;
+  }
+  
+  .arrow:hover {
+    opacity:1;
+  }
+  
+  .arrow_direction:hover {
+    opacity:1;
+  }
+
+  .product_section_two {
+    margin-top: 2rem;
+  }  
+
+  hr{
+    margin-top: 1rem;
+  }
+
+  .product_title{
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .product_price{
+    font-size: 2rem;
+  }
+
+  .product_details_info{
+    color: #b0b0b0;
+    fill: #b0b0b0;
+    display: flex;
+    font-size: 1.1rem;
+  }
+
+  .product_details_info div{
+    margin: 1rem 1rem 2rem 0;
+    display: flex;
+    gap: 0.5rem;
+  }
+  .product_details_info div span{
+    font-family: Pretendard_Light;
+  }
+  .product_details_info div svg{
+    width: 1.2rem;
+  }
+
+  .product_location{
+    height: 2rem;
+    width: 35rem;
+    display: grid;
+    font-size: 1rem;
+  }
+
+  .product_status div[class$=form]{
+    display: flex;
+    font-size: 1.1rem;
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .product_status div[class$=form] > div:first-child{
+    margin: 0 3rem 0 0;
+    color: #b0b0b0;
+  }
+
+  .product_status div[class$=form] > div:last-child{
+    margin: 0;
+  }
+  .product_location_form div svg{
+    width: 0.7rem;
+  }
+
+  .product_tag_list{
+    margin: 0;
+    padding: 0;
+  }
+  .tagbox{
+    border: solid 1px #b0b0b0;
+    border-radius: 0.4rem;
+    font-size: 1rem;
+    padding: 0.2rem 0.5rem;
+    display: inline-block; 
+  }
+
+  .chat{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    background-color: rgb(244, 199, 19);
+  }
+  .chat:hover{
+    background-color: rgb(231, 188, 18);
+  }
+  .chat span{
+    margin: 0 0 0 0.5rem;
+  }
+  .product_buttons svg{
+    width: 1rem;
+    display: inline-block;
+    margin: 0;
+  }
+
+  .product_buttons{
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+
+  .product_buttons button, .product_buttons input{
+    width: 10rem;
+    height: 3rem;
+    font-size: 1.2rem;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: white;
+    fill: white;
+    cursor: pointer;
+  }
+
+  #product-sellReserve{
+    background-color: red;
+  }
+  #product-sellReserve:hover{
+    background-color: rgb(228, 1, 1);
+  }
+
+  .product_edit{
+    background-color: rgb(4, 190, 4);
+  }
+  .product_edit:hover{
+    background-color: rgb(4, 168, 4);
+  }
+
+  .product_delete{
+    background-color: rgb(209, 125, 209);
+  }
+  .product_delete:hover{
+    background-color: rgb(188, 111, 188);
+  }
+  .product_resell{
+	  z-index: 200;
+	  background-color: #4792ff;
+  }
+  .product_resell:hover{
+	  background-color: #3c80e3;
+  }
+
+  .product_detail{
+    width: 75rem;  
+  }
+
+  .detail_section {
+    padding: 0rem;   
+    display: flex;
+    flex-direction: row;
+    gap: 2rem
+  }
+
+  
+  .detail_section_detail {
+    width: 53rem;
+    margin: 0;
+  }
+
+  .product_detail_title {
+    width: 100%;
+    padding: 1rem 0;
+    font-size: 1.5rem;
+    margin: 0;
+  }
+  .detail_section_one > ul {
+    padding: 0rem;
+    position: left;
+  }
+  .product_detail_content{
+    background-color: rgba(206, 200, 200, 0.432);
+    width: 100%;
+    min-height: 20rem;
+    padding: 1rem;
+    display: inline-block;
+  }
+
+  .detail_section_two {
+    display: flex;
+    width: auto;
+  }
+  .detail_section_three {
+   width: 20rem;
+   display: flex;
+   flex-direction: column;
+   margin: 0;
+  }
+
+  .detail_section_three hr{
+    margin: 1rem 0;
+  }
+
+  .moreBox{
+    margin-top: 2rem;
+  }
+
+  .moreBox a{
+    display: flex;
+    gap: 0.2rem
+  }
+  .moreBox a svg{
+    display: inline-block;
+    width: 0.6rem;
+    margin: 0;
+  }
+
+  .moreBox a span span{
+    color: red;
+  }
+
+  .user_info{
+    width: 100%;
+    height: 5rem;
+    /* background-color: #ffb433; */
+    border-top: 2px solid #b0b0b0;
+    text-align: center;
+    line-height: 3rem;
+    font-size: 1.2rem;
+    display: flex;
+    margin-bottom: 2rem;
+  }
+  .user_info > svg{
+    width: 5rem;
+    margin: 0 2rem;
+  }
+
+  .user_info_detail{
+    margin: 0;
+    width: 100%;
+    text-align: left;
+  }
+
+  .user_nickName{
+    height: 3rem;
+  }
+
+  .uesr_info_detail_list{
+    height: 2rem;
+    line-height: 100%;
+  }
+  .uesr_info_detail_list div{
+    display: inline-block;
+    font-size: 1rem;
+    /* height: 1rem; */
+  }
+
+  .summary_products{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    gap: 0.5rem;
+  }
+
+  .summary_products li{
+    width: calc(100%/2 - 0.25rem);
+    margin: 0;
+    position: relative;
+  }
+
+  .summary_products li a img{
+    width: 100%;
+    height: 100%;
+  }
+
+  .summary_products li a div{
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    z-index: 2;
+    width: 100%;
+    height: 2rem;
+    background: rgba(0, 0, 0, 0.25);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .summary_products li a{
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+  }
+  
+  #modal-box{
+    /* border: 1px solid black; */
+    position: fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+  
+    display: none;
+    justify-content: center;
+    align-items: center;
+  
+    background-color: rgba(0, 0, 0, 0.411);
+    z-index: 200;
+  }
+  #modal-box.active{
+    display: flex;
+  }
+  
+  #modal-contents{
+    background-color:#fff;
+    width:600px;
+    padding:20px;
+    border-radius:5px;
+    position:relative;
+  }
+  
+  #modal-contents button {
+    background-color:#fff;
+    color:#ccc;
+    font-size:20px;
+    border:none;
+    outline:none;
+    position:absolute;
+    top:10px;
+    right:10px;
+  }
+  
+  
+  #h2 {
+    font-size:2rem;  
+    margin-bottom:20px ;
+    border: 3px solid red;
+  }
+  #profile {
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border:5px solid #ccc;
+    padding:10px;
+  }
+  #desc {
+    margin:10px 20px;
+  }
+  #desc p {
+    font-size:1rem;
+    line-height:1.5;
+  }
+
+  #profile img{
+    width: 100px;
+    height: 100px;
+  }
+
+.productLeaseConfirm{
+    justify-content: space-evenly;
+    line-height: 30px;
+}
+
+.productLeaseConfirm .confirmBtn{
+    background-color: var(--confirm-color);
+}
+
+.productLeaseConfirm .cancelBtn{
+    background-color: var(--cancel-color);
+    
+}
+
+.productLeaseConfirm .confirmBtn:hover{
+    background-color: var(--confirm-color-hover);
+}
+
+.productLeaseConfirm .cancelBtn:hover{
+    background-color: var(--cancel-color-hover);
+}
+
+div #modal-contents{
+   width: 60rem;
+}
+
+div #profile{
+   height: 30rem;
+}
+
+#desc{
+   margin:10px 20px;
+}
+
+#desc p.text-date{
+    font-size:1.2rem;
+    line-height:3rem;
+    width: 30rem;
+    float: center;
+  }
+  
+#desc p.text-num{
+    font-size:1.2rem;
+    line-height:3rem;
+    width: 30rem;
+  }
+  
+ #desc p.text-price{
+    font-size:1.5rem;
+    line-height:3rem;
+    width: 30rem;
+  }
+  
+  #desc p.text-totalPrice{
+    font-size:1.7rem;
+    line-height:5rem;
+    width: 30rem;
+    font-weight: bold;
+  }
+
+div #profile{
+}
+
+div #profile img{
+   width: 12rem;
+   height: 12rem;
+   text-align: center;
+   border-radius: 100%;
+}
+
+div #desc{
+}
+
+
+.image-content{
+    border-right: 3px solid #ddd;
+    text-align: center;
+    padding-left: 2rem;
+    padding-right: 3.5rem;
+}
+
+.text-contents{
+    padding: 30px;
+    float: center;
+    width: 100%;
+    height: 400px;
+    text-align: center;
+    line-height: 3rem;
+}
+
+#rent_button:hover{
+    background-color: yellow;
+    border: 0px;
+    border-radius: 3rem;
+    font-size: 1.2rem;
+}
+
+#rent_button{
+   width: 10rem;
+   height: 3rem;
+    border: 0px;
+    border-radius: 3rem;
+    font-size: 1.2rem;
+}
+
+#top-title{
+   line-height: 5rem;
+}
+
+button#close{
+   font-size: 2.2rem;
+}
+
+
+
+
+
+ 
+
+ 

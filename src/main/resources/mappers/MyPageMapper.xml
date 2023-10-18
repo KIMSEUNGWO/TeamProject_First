@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="july.lease.dao.mypage.MyPageMapper">
+
+	<select id="findByName" resultType="String">
+		SELECT MEMBER_NAME
+		FROM MEMBER
+		WHERE member_id = #{memberId}
+	</select>
+	
+	<select id="findByOrderCount" resultType="Integer"> <!--내가 대여한 물건이 정상적으로 반납된 건수 -->
+		SELECT COUNT(ORDER_CONFIRM_STATUS)
+		FROM ORDERS
+		WHERE MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 5 <!-- 4 : 대여가 완료된 주문건 -->
+	</select>
+	
+	<select id="findBySellCount" resultType="Integer"> <!-- 판매건수 -->
+		SELECT COUNT(*)
+		FROM ORDERS
+		WHERE ORDER_CONFIRM_STATUS = 5 AND PRODUCT_ID IN (
+									                        SELECT PRODUCT_ID
+									                        FROM PRODUCT
+									                        WHERE MEMBER_ID = #{memberId}
+									                        )
+	</select>
+	
+	<select id="findByMyitemsCount" resultType="Integer"> <!--내 물건(현재 대여가능한 물건의 개수) -->
+		SELECT COUNT(*)
+		FROM PRODUCT
+		WHERE MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'N'
+	</select>
+	
+	<select id="findByWaitItems" resultType="Integer"> <!-- 대여확정을 기다리는 건수 -->
+		SELECT COUNT(ORDER_CONFIRM_STATUS)
+		FROM ORDERS
+		WHERE MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 2 <!-- 2 : 대기중인 건수 -->
+	</select>
+	
+	<select id="confirmCheck" resultType="july.lease.dto.MyPageMainInfoDto"> <!--현재 대여요청 -->
+			SELECT ORDERS.PRODUCT_ID as productId, P_IMAGE.STORE_IMAGE_NAME as productImage, PRODUCT_NAME as productName, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') as startDate, TO_CHAR(ORDER_RENT_END_DATE,'YYYY-MM-DD') as endDate, ORDER_RENT_END_DATE - ORDER_RENT_START_DATE + 1 as countDate, TO_CHAR(ORDER_PRICE, 'FM999,999,999') AS price, MEMBER.MEMBER_NICKNAME AS memberName, ORDERS.ORDER_CONFIRM_STATUS AS orderConfirmStatus, ORDERS.ORDER_ID AS orderId, ORDERS.MEMBER_ID AS memberId
+		    FROM ORDERS
+		    JOIN MEMBER ON (MEMBER.MEMBER_ID = ORDERS.MEMBER_ID)
+		    JOIN PRODUCT ON (ORDERS.PRODUCT_ID =  PRODUCT.PRODUCT_ID)
+		    LEFT JOIN (
+		        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+		        FROM PRODUCT_IMAGE
+		    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		    WHERE PRODUCT.MEMBER_ID = ${memberId} AND ORDER_CONFIRM_STATUS IN (2, 3)
+		    ORDER BY ORDER_CREATE_DATE DESC
+	</select>
+	
+		<select id="confirmCheckAJAX" resultType="july.lease.dto.MyPageMainInfoDto"> <!--현재 대여요청 -->
+		SELECT A.productId productId, A.productImage as productImage, A.productName as productName, A.startDate as startDate, A.endDate endDate, A.countDate as countDate, A.price as price, A.memberName as memberName,  A.orderConfirmStatus AS orderConfirmStatus, A.ORDER_ID as orderId, A.memberId as memberId
+		FROM (
+		    SELECT ORDERS.PRODUCT_ID as productId, P_IMAGE.STORE_IMAGE_NAME as productImage, PRODUCT_NAME as productName, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') as startDate, TO_CHAR(ORDER_RENT_END_DATE,'YYYY-MM-DD') as endDate, ORDER_RENT_END_DATE - ORDER_RENT_START_DATE + 1 as countDate, TO_CHAR(ORDER_PRICE, 'FM999,999,999') AS price, MEMBER.MEMBER_NICKNAME AS memberName,  ORDERS.ORDER_CONFIRM_STATUS AS orderConfirmStatus, ORDERS.ORDER_ID AS ORDER_ID, ORDERS.MEMBER_ID AS memberId, ROW_NUMBER() OVER (ORDER BY ORDER_CREATE_DATE DESC) AS RNUM
+		    FROM ORDERS
+		    JOIN MEMBER ON (MEMBER.MEMBER_ID = ORDERS.MEMBER_ID)
+		    JOIN PRODUCT ON (ORDERS.PRODUCT_ID =  PRODUCT.PRODUCT_ID)
+		    LEFT JOIN (
+		        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+		        FROM PRODUCT_IMAGE
+		    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		    WHERE PRODUCT.MEMBER_ID = ${memberId} AND ORDER_CONFIRM_STATUS IN (2, 3)
+		    ORDER BY ORDER_CREATE_DATE DESC
+		) A
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<select id="findBySellingItem" resultType="Integer"> <!-- 현재 판매중인 물건의 갯수 -->
+		SELECT COUNT(PRODUCT_ID) 
+		FROM PRODUCT
+		WHERE MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'N'
+	</select>
+	
+	<select id="todayReturnItem" resultType="Integer"> <!-- 오늘 반납예정인 물건의 갯수 -->
+		SELECT COUNT(ORDER_ID)
+		FROM ORDERS
+		JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		WHERE PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 4 AND TO_CHAR(SYSDATE, 'YYYYMMDD') = TO_CHAR(ORDER_RENT_END_DATE, 'YYYYMMDD')
+	</select>
+	
+	<select id="totalBenefit" resultType="String"> <!-- 총 수익금 -->
+		SELECT TO_CHAR(COALESCE(SUM(ORDER_PRICE),0), 'FM999,999,999')
+		FROM ORDERS
+		JOIN PRODUCT ON (PRODUCT.PRODUCT_ID = ORDERS.PRODUCT_ID)
+		WHERE PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 5
+	</select>
+
+	<select id="itemSellList" resultType="july.lease.dto.MyPageSellItemsDto"> <!-- 4: 거래가 끝난 물건 단위의 총 대여수, 총 수익금 조회 -->
+		SELECT PRODUCT.PRODUCT_ID AS itemId, STORE_IMAGE_NAME as itemImage, PRODUCT_NAME as itemTitle, TO_CHAR(PRODUCT_PRICE, 'FM999,999,999') AS itemPrice, PRODUCT_STATUS as itemStatus, COALESCE(A.CNT, 0) as itemTotalCount, COALESCE(TO_CHAR(A.TOTAL, 'FM999,999,999'), '0') as itemTotalPrice
+		FROM PRODUCT
+		LEFT JOIN (
+				        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+				        FROM PRODUCT_IMAGE
+				    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		LEFT JOIN (
+		            SELECT PRODUCT.PRODUCT_ID, COUNT(PRODUCT.PRODUCT_ID) AS CNT, SUM(ORDER_PRICE) AS TOTAL
+		            FROM ORDERS
+		            JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		            WHERE PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 5
+		            GROUP BY PRODUCT.PRODUCT_ID
+		            ) A ON (A.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		WHERE PRODUCT.MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'N'
+		ORDER BY PRODUCT.PRODUCT_ID
+	</select>
+	
+	<select id="itemSellListAJAX" resultType="july.lease.dto.MyPageSellItemsDto"> <!-- 4: 거래가 끝난 물건 단위의 총 대여수, 총 수익금 조회 -->
+		SELECT A.itemId as itemId, A.itemImage as itemImage, A.itemName as itemTitle, A.PRODUCT_PRICE as itemPrice, A.itemStatus as itemStatus, A.itemTotalCount as itemTotalCount, A.itemTotalPrice as itemTotalPrice
+		FROM (
+				SELECT PRODUCT.PRODUCT_ID AS itemId, STORE_IMAGE_NAME as itemImage, PRODUCT_NAME as itemName, TO_CHAR(PRODUCT_PRICE, 'FM999,999,999') AS PRODUCT_PRICE, PRODUCT_STATUS as itemStatus, COALESCE(A.CNT, 0) as itemTotalCount, COALESCE(TO_CHAR(A.TOTAL, 'FM999,999,999'), '0') as itemTotalPrice, ROW_NUMBER() OVER (ORDER BY PRODUCT.PRODUCT_ID) AS RNUM
+				FROM PRODUCT
+				LEFT JOIN (
+						        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+						        FROM PRODUCT_IMAGE
+						    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+				LEFT JOIN (
+				            SELECT PRODUCT.PRODUCT_ID, COUNT(PRODUCT.PRODUCT_ID) AS CNT, SUM(ORDER_PRICE) AS TOTAL
+				            FROM ORDERS
+				            JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+				            WHERE PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 5
+				            GROUP BY PRODUCT.PRODUCT_ID
+				            ) A ON (A.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+				WHERE PRODUCT.MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'N'
+				ORDER BY PRODUCT.PRODUCT_ID
+		    ) A
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	
+
+	<select id="endItems" resultType="july.lease.domain.Product"> <!-- 판매중지가 된 물건리스트 조회 -->
+		SELECT PRODUCT_ID, MEMBER_ID, CATEGORY_ID, PRODUCT_NAME, PRODUCT_PRICE, PRODUCT_CONTENT, LOCATION, PRODUCT_CREATE_DATE, PRODUCT_END_STATUS
+		FROM PRODUCT
+		WHERE MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'Y'
+	</select>
+	
+	<!-- 구매페이지 -->
+	
+	<select id="orderItems" resultType="july.lease.dto.MyPageOrderItemsDto"> <!-- 판매중지가 된 물건리스트 조회 -->
+		SELECT ORDERS.PRODUCT_ID AS productId, STORE_IMAGE_NAME as productImage, PRODUCT_NAME as productName, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') as startDate, TO_CHAR(ORDER_RENT_END_DATE, 'YYYY-MM-DD') as endDate, ORDER_RENT_END_DATE - ORDER_RENT_START_DATE + 1 AS rentDate, MEMBER_NICKNAME as sellerName, DECODE(ORDER_CONFIRM_STATUS, '1', '대여거절','2','대기중','3','대여확정', '4','대여중', '거래완료') as productStatus
+		FROM ORDERS
+		LEFT JOIN (
+				        SELECT PRODUCT_IMAGE.PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_IMAGE.PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+				        FROM PRODUCT_IMAGE
+				    ) P_IMAGE ON (ORDERS.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		JOIN MEMBER ON (MEMBER.MEMBER_ID = PRODUCT.MEMBER_ID)
+		WHERE ORDERS.MEMBER_ID = #{memberId}
+		ORDER BY ORDER_ID DESC
+	</select>
+	
+	<select id="orderItemsAJAX" resultType="july.lease.dto.MyPageOrderItemsDto"> <!-- 판매중지가 된 물건리스트 조회 -->
+		SELECT productId, productImage, productName, startDate, endDate, rentDate, sellerName, productStatus
+		FROM  (
+		    SELECT ORDERS.PRODUCT_ID AS productId, STORE_IMAGE_NAME as productImage, PRODUCT_NAME as productName, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') as startDate, TO_CHAR(ORDER_RENT_END_DATE, 'YYYY-MM-DD') as endDate, ORDER_RENT_END_DATE - ORDER_RENT_START_DATE + 1 AS rentDate, MEMBER_NICKNAME as sellerName, DECODE(ORDER_CONFIRM_STATUS, '1','대여거절','2','대기중','3','대여확정','4','대여중', '거래완료') as productStatus, ROW_NUMBER() OVER (ORDER BY ORDER_ID DESC) AS RNUM
+		    FROM ORDERS
+		    LEFT JOIN (
+					        SELECT PRODUCT_IMAGE.PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_IMAGE.PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+					        FROM PRODUCT_IMAGE
+					    ) P_IMAGE ON (ORDERS.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		    JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		    JOIN MEMBER ON (MEMBER.MEMBER_ID = PRODUCT.MEMBER_ID)
+		    WHERE ORDERS.MEMBER_ID = #{memberId}
+		    ORDER BY ORDER_ID DESC
+		    ) A
+		WHERE A.RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<select id="validConfirm1" resultType="Long"> <!-- 확정 취소버튼 클릭시 유효성검사 첫번째 / 해당 멤버가 해당 물품을 소유하고있는지 확인 -->
+		SELECT *
+		FROM PRODUCT
+		WHERE MEMBER_ID = #{memberId} AND PRODUCT_ID = #{productId}
+	</select>
+	
+	<select id="validConfirm2" resultType="Long"> <!-- 확정 취소버튼 클릭시 유효성검사 두번째 / 해당 주문번호가 해당 물품을 가르키고있는지 확인 -->
+		SELECT *
+		FROM ORDERS
+		WHERE ORDER_ID = #{orderId} AND PRODUCT_ID = #{productId}
+	</select>
+	
+	<update id="confirmUpdate"> <!-- 확정 취소버튼 클릭시 유효성검사 두번째 / 해당 주문번호가 해당 물품을 가르키고있는지 확인 -->
+		UPDATE ORDERS
+		SET ORDER_CONFIRM_STATUS = #{confirmId}
+		WHERE ORDER_ID = #{orderId} AND PRODUCT_ID = #{productId}
+	</update>
+	
+	<select id="sellItemsModal" resultType="july.lease.dto.MyPageSellitemsModalDto"> <!-- 대여중일때 모달창에 띄울 정보 조회 -->
+		SELECT PRODUCT.PRODUCT_ID AS productId, STORE_IMAGE_NAME AS productImage, PRODUCT_NAME AS productTitle, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') || ' ~ ' || TO_CHAR(ORDER_RENT_END_DATE, 'YYYY-MM-DD') AS rentDate, MEMBER_NAME AS rentMemberName
+		FROM ORDERS
+		JOIN MEMBER ON (ORDERS.MEMBER_ID = MEMBER.MEMBER_ID)
+		JOIN PRODUCT ON (PRODUCT.PRODUCT_ID = ORDERS.PRODUCT_ID)
+		LEFT JOIN (
+		        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+		        FROM PRODUCT_IMAGE
+		    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		WHERE PRODUCT.PRODUCT_ID = #{productId} AND PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 4 AND PRODUCT_STATUS = 2
+	</select>
+	
+	<update id="updatePw"> <!-- 개인정보수정(비밀번호변경) -->
+		UPDATE MEMBER
+		SET MEMBER_PASSWORD = #{pw}
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+	<update id="productRent"> <!-- 물품 대여중으로 변경 -->
+		UPDATE	PRODUCT
+		SET PRODUCT_STATUS = 2
+		WHERE PRODUCT_ID = #{productId}
+	</update>
+	
+	<update id="productReturn"> <!-- 물품 반납으로 변경 -->
+		UPDATE	PRODUCT
+		SET PRODUCT_STATUS = 1
+		WHERE PRODUCT_ID = #{productId}
+	</update>
+	
+	<select id="rentList" resultType="july.lease.dto.MyPageRentItemsDto"> <!-- 대여중일때 모달창에 띄울 정보 조회 -->
+		select a.order_id, b.product_id, b.product_name, to_char(a.order_rent_start_date, 'yyyy-mm-dd') as product_start_date,
+		       to_char(a.order_rent_end_date, 'yyyy-mm-dd') as product_end_date,
+		         (a.order_rent_end_date - a.order_rent_start_date) + 1 as product_date_count, '대여중' as product_status, p_image.store_image_name as product_image
+		from orders a
+		left join product b
+		    on a.product_id = b.product_id
+		left join member c
+		    on b.member_id = c.member_id
+		left join (
+		              select product_id, store_image_name, row_number() over (partition by product_id order by product_image_id) as row_num
+		              from product_image
+		          ) p_image on (b.product_id = p_image.product_id and p_image.row_num = 1)
+		where c.member_id = #{memberId} and a.order_confirm_status = 4 and b.product_status = 2
+	</select>
+</mapper>

@@ -1,0 +1,75 @@
+@charset "UTF-8";/* 공통 CSS 시작 */
+*{
+    box-sizing: border-box;
+    margin: 0 auto;
+    font-family: 'Pretendard';
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('../font/Pretendard-Medium.otf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Pretendard_Light';
+    src: url('../font/Pretendard-Light.otf') format('truetype');
+}
+
+:root {
+    --border-radius: 0.5rem;
+    --main-font-color: rgb(255, 255, 255);
+    --main-font-color-hover: rgb(0, 0, 0);
+    --confirm-color: rgb(83, 216, 127);
+    --cancel-color: rgb(253, 105, 105);
+    --confirm-color-hover: rgb(75, 174, 108);
+    --cancel-color-hover: rgb(228, 94, 94);
+}
+
+ul{
+    list-style: none; 
+     color: black;
+ }
+ 
+ a{
+     color: black;
+     text-decoration: none;
+ }
+ 
+aside{
+    width: 13rem;
+    border-radius: var(--border-radius);
+    margin: 0;
+    padding: 1.5rem;
+    max-height: 30rem;
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+    
+}
+
+.myName{
+    font-size: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.myMenuList{
+    font-size: 1.2rem;
+    padding: 0px;
+}
+
+.myMenu{
+    margin: 1.5rem 0;
+}
+
+.moreBox{
+    width: 100%;
+    text-align: center;
+}
+
+.getMore{
+    width: 5rem;
+    height: 2rem;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    color: #949494;
+    background-color: rgba(255, 255, 255, 0);
+}

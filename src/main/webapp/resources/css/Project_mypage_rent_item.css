@@ -1,0 +1,195 @@
+/* 공통 CSS 시작 */
+*{
+    box-sizing: border-box;
+    margin: 0 auto;
+    font-family: 'Pretendard';
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('../font/Pretendard-Medium.otf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Pretendard_Light';
+    src: url('../font/Pretendard-Light.otf') format('truetype');
+}
+
+:root {
+    --border-radius: 0.5rem;
+    --border-color: #b0b0b0;
+    --main-color: rgb(0, 0, 0);
+    --main-color-hover: rgb(80, 80, 80);
+    --main-font-color: rgb(255, 255, 255);
+    --main-font-color-hover: rgb(255, 255, 255);
+    --confirm-color: rgb(83, 216, 127);
+    --cancel-color: rgb(253, 105, 105);
+    --confirm-color-hover: rgb(75, 174, 108);
+    --cancel-color-hover: rgb(228, 94, 94);
+}
+
+ul{
+    list-style: none; 
+     color: black;
+     padding: 0;
+ }
+ 
+ a{
+     color: black;
+     text-decoration: none;
+ }
+ 
+     /* 헤더 CSS시작 */
+
+main{
+    width: 100%;
+    margin-top: 5rem;
+}
+
+.wrapper{
+    width: 75rem;
+    /* background-color: antiquewhite; */
+    display: flex;
+    gap: 1rem;
+}
+
+.wrapper *{
+    margin: 0;
+}
+
+.wrapper .myPageMain{
+    width: 62rem;
+    border-radius: var(--border-radius);
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+    padding: 1.5rem;
+    height: 100%;
+}
+
+.myLeaseStatus{
+    width: 100%;
+}
+
+.myPageTitle{
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+
+.listMain.empty span{
+    color: #b0b0b0;
+    width: 100%;
+}
+
+.myLeaseStatus ul{
+    display: flex;
+    text-align: center;
+    height: 3rem;
+    align-items: center;
+    padding-left: 10px;
+}
+.myLeaseStatus .listMain{
+    height: 7rem;
+}
+
+.leaseTitle{
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    border-bottom: 1px solid rgb(185, 185, 185);
+}
+
+.myLeaseStatus ul:first-child{
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+}
+
+.myLeaseStatus ul:last-child{
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+.myLeaseStatus ul li:nth-child(1){
+    width: 7%;
+}
+.myLeaseStatus ul li:nth-child(2){
+    width: 10%;
+}
+.myLeaseStatus ul li:nth-child(3){
+    width: 25%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.myLeaseStatus ul li:nth-child(4){
+    width: 11%;
+}
+.myLeaseStatus ul li:nth-child(5){
+    width: 11%;
+}
+.myLeaseStatus ul li:nth-child(6){
+    width: 7%;
+}
+.myLeaseStatus ul li:nth-child(7){
+    width: 10%;
+}
+
+.myLeaseStatus ul li:nth-child(8){
+    width: 19%;
+}
+
+
+
+.myLeaseStatus{
+    width: 100%;
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+    border-radius: var(--border-radius);
+}
+
+.myPageTitle{
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.productImage img{
+    width: 70%;
+    height: 70%;
+    border-radius: 0.85rem;
+}
+
+.productLeaseChat{
+	display: flex;
+	justify-content: center;
+	gap: 0.5rem;
+}
+
+.productLeaseChat a{
+    background-color: var(--main-color);
+    display: inline-block;
+    width: 4.5rem;
+    height: 2rem;
+    line-height: 2rem;
+    border-radius: var(--border-radius);
+    color: white; 
+    font-size: 0.9rem;  
+}
+
+.productLeaseChat a:hover{
+    background-color: var(--main-color-hover);
+}
+
+.productLeaseChat button{
+    background-color: var(--main-color);
+    display: inline-block;
+    width: 4.5rem;
+    height: 2rem;
+    line-height: 2rem;
+    border-radius: var(--border-radius);
+    color: white; 
+    font-size: 0.9rem;  
+    border: none;
+    cursor: pointer;
+}
+
+.productLeaseChat button:hover{
+    background-color: var(--main-color-hover);
+}
+

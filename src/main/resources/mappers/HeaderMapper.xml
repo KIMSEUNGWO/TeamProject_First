@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="july.lease.dao.header.HeaderMapper">
+
+	<select id="getCategory" resultType="Category">
+		select category_id, category_id2, category_name from category order by category_id
+	</select>
+	
+	<select id="notReadMessageCnt">
+		select count(MESSAGE_READ_STATUS) 
+		from message 
+		where my_id=#{memberId} and MESSAGE_READ_STATUS='N'
+	</select>
+</mapper>

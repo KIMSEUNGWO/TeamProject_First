@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="july.lease.dao.order.OrdersMapper">
+
+	<select id="checkOrdersIfValid" resultType="int">
+        select count(*)
+		from orders a
+		left join product b
+		on a.product_id = b.product_id
+		where b.product_id = #{productId} and a.order_confirm_status in (2,3,4)
+    </select>
+    
+    <insert id="save">
+    <selectKey keyProperty="orderId" resultType="Long" order="BEFORE">
+        select seq_orders_id.nextval
+        from dual
+    </selectKey>
+    insert into orders
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+        order_id, member_id, product_id, rent_date_id, order_create_date, order_confirm_status,
+        order_rent_start_date, order_rent_end_date, order_price
+        <if test="orderRequest != null">,order_request</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+        #{orderId}, #{memberId}, #{productId}, #{rentDateId}, sysdate, 2,
+        #{orderRentStartDate}, #{orderRentEndDate}, #{orderPrice}
+        <if test="orderRequest != null">,#{orderRequest}</if>
+    </trim>
+	</insert>
+
+	<select id="findOrderRentDateByProductId" resultType="String">
+		select 
+	    to_char(a.order_rent_start_date,'yyyy-mm-dd') || '|' || to_char(a.order_rent_end_date, 'yyyy-mm-dd') as order_rent_date
+		from orders a
+		left join product b on a.product_id = b.product_id
+		where b.product_id = #{productId} and a.order_confirm_status in (2,3,4)
+		order by a.order_rent_start_date asc
+	</select>
+	
+	<select id="findByOrderId" resultType="Orders">
+		select order_id, member_id, product_id, rent_date_id, order_create_date,
+			   order_confirm_status, order_rent_start_date, order_rent_end_date,
+			   order_price, order_request
+		from orders
+		where order_id = #{orderId}
+	
+	</select>
+	
+	<select id="findConfirmStatusCountByProductId" resultType="int">
+		select count(*)
+		from orders a
+		inner join product b
+		on  a.product_id = b.product_id
+		where b.product_id = #{productId} and a.order_confirm_status in (3,4,5)
+	</select>
+    
+</mapper>

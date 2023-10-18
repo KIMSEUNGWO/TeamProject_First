@@ -1,0 +1,48 @@
+footer{
+    width: 100%;
+    margin-top: 5rem;
+}
+
+.footerMain{
+    width: 75rem;
+    height: 100%;
+    background-color: rgb(244, 244, 244);
+}
+
+.foot_bottom{
+    display: flex;
+}
+
+.foot_bottom h3{
+    margin: 1rem auto;
+}
+
+.foot_bottom span{
+    margin: 0.2rem auto;
+    color: rgb(98, 98, 98);
+}
+
+.foot_bottom div{
+    margin: 0;
+    width: 10rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.foot_bottom a{
+    margin: 0.2rem auto;
+    color: rgb(98, 98, 98);
+}
+
+.foot_bottom_bottom{
+    margin-top: 5rem;
+    margin-left: 2rem;
+    padding-bottom: 2rem;
+
+    
+}
+
+.foot_bottom_bottom a{
+    margin: 0 0.7rem;
+    color: rgb(138, 138, 138);
+}

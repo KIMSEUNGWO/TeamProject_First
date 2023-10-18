@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="july.lease.dao.list.ItemListMapper">
+
+	<!-- 검색된 상품 리스트 -->
+	<select id="getItemList" resultType="july.lease.dto.ItemListDto">
+	 
+	    SELECT 
+	        productName,
+		    TO_CHAR(productPrice, 'FM999,999,999') as productPrice,
+		    productId,
+		    storeImageName,
+		    categoryId
+	    FROM (
+	    	SELECT
+		        p.PRODUCT_NAME AS productName,
+		        p.PRODUCT_PRICE AS productPrice,
+		        p.PRODUCT_ID AS productId,
+		        pi.STORE_IMAGE_NAME AS storeImageName,
+		        c.CATEGORY_ID as categoryId,
+		        ROW_NUMBER() OVER (PARTITION BY p.PRODUCT_ID ORDER BY pi.UPLOAD_IMAGE_NAME DESC) AS rn
+		    FROM
+		    	PRODUCT p
+		    JOIN
+		        PRODUCT_IMAGE pi ON p.PRODUCT_ID = pi.PRODUCT_ID
+		    JOIN
+		        RENT_DATE rd ON p.PRODUCT_ID = rd.PRODUCT_ID
+		    JOIN
+		        CATEGORY c ON p.CATEGORY_ID = c.CATEGORY_ID	
+		    WHERE 1=1
+		        <if test="search != null and search != ''">
+		            AND p.PRODUCT_NAME LIKE '%' || #{search} || '%'
+		        </if>
+		      <if test="startDate != null and endDate != null">
+				    AND (rd.RENT_ABLE_START_DATE = to_date(#{startDate},'yyyy-mm-dd')
+				    AND rd.RENT_ABLE_END_DATE = to_date(#{endDate}),'yyyy-mm-dd')
+			  </if>
+			   <if test="categoryId != null">
+		            AND c.CATEGORY_ID = #{categoryId}
+		       </if>
+			
+				
+			ORDER BY PRODUCT_CREATE_DATE DESC
+			)
+		WHERE RN = 1    	    
+	</select>
+	
+	
+	<select id="getItemListAJAX" resultType="july.lease.dto.ItemListDto">
+	 	SELECT 
+	 			A.productId, 
+	 			A.productName, 
+	 			TO_CHAR(A.productPrice, 'FM999,999,999'), 
+	 			A.storeImageName, 
+	 			A.categoryId
+		FROM (
+	    		SELECT productId, productName, productPrice, storeImageName, categoryId, ROWNUM as RNUM
+	    		FROM (
+	    			SELECT
+		        			p.PRODUCT_NAME AS productName,
+		        			p.PRODUCT_PRICE AS productPrice,
+		        			p.PRODUCT_ID AS productId,
+		        			pi.STORE_IMAGE_NAME AS storeImageName,
+		       			c.CATEGORY_ID as categoryId,
+		       			ROW_NUMBER() OVER (PARTITION BY p.PRODUCT_ID ORDER BY pi.UPLOAD_IMAGE_NAME DESC) AS rn
+		    		FROM
+		    				PRODUCT p
+		    		JOIN
+		        			PRODUCT_IMAGE pi ON p.PRODUCT_ID = pi.PRODUCT_ID
+		    		JOIN
+		        			RENT_DATE rd ON p.PRODUCT_ID = rd.PRODUCT_ID
+		   	 		JOIN
+		        			CATEGORY c ON p.CATEGORY_ID = c.CATEGORY_ID	
+		    		WHERE 1=1
+		        			<if test="search != null and search != ''">
+		            		AND p.PRODUCT_NAME LIKE '%' || #{search} || '%'
+		        			</if>
+			      			<if test="startDate != null and endDate != null">
+					    	AND (rd.RENT_ABLE_START_DATE &lt;= to_date(#{startDate},'yyyy-mm-dd')
+					    	AND rd.RENT_ABLE_END_DATE &gt;= to_date(#{endDate},'yyyy-mm-dd'))
+					  		</if>
+					   		<if test="categoryId != null">
+			            	AND c.CATEGORY_ID = #{categoryId}
+			       			</if>
+				
+				
+				
+					ORDER BY PRODUCT_CREATE_DATE DESC
+			)
+			WHERE RN = 1
+		) A 
+		WHERE A.RNUM BETWEEN #{startRow} AND #{endRow} 
+	</select>
+
+
+
+</mapper>        

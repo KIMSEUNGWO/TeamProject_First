@@ -1,0 +1,59 @@
+
+ul{
+ list-style: none; 
+  color: black;
+}
+
+a{
+  color: black;
+  text-decoration: none;
+}
+
+.comp-box{
+	width: 75rem;
+	height: 30rem;
+}
+
+.box-content{
+	border: 2px solid #bbb;
+	width: 55rem;
+	height: 100%;
+	border-radius: 5rem;
+}
+
+p{
+	text-align: center;
+	font-size: 2rem;
+	font-weight: bold;
+	padding-top: 11rem;
+}
+#home-button-box button{
+	width: 6rem;
+	height: 3rem;
+	border: 0px;
+	font-size: 1.1rem;
+	border-radius: 0.5rem;
+	cursor: pointer;
+}
+
+#home{
+	margin-right: 1rem;
+}
+
+#home:hover{
+	background-color: #ccc;
+}
+
+#home-button-box{
+	height: 15rem;
+	text-align: center;
+	padding: 2rem;
+}
+
+#reserve-list{
+
+}
+
+#reserve-list:hover{
+	background-color: #ccc;
+}

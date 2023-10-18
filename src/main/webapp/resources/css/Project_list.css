@@ -1,0 +1,230 @@
+a{
+	text-decoration: none;
+    color: black;
+}
+
+.contents{
+    width: 75rem;
+    /*height: 100rem;*/
+    /* background-color: antiquewhite; */
+}
+.ctegorybox{
+	position: relative;
+    width: 100%;
+    height: 5rem;
+    justify-content: center;
+    align-items : center;
+    /* background-color: rgb(165, 186, 255); */
+}
+#categorytitle{
+    margin: 1rem;
+    height: 3rem;
+    line-height: 3rem; 
+    margin-bottom: 0;
+    text-align: left;
+    position:relative;
+}
+
+.categoryProduct{
+    width: 100%;
+    text-align: start;
+    margin-top: 1rem;
+}
+.product{
+    width: 17rem;
+    height: 19rem;
+    display: inline-block;
+    margin: 0.4rem;
+    box-shadow: 2px 2px 5px rgb(185, 185, 185);
+    border-radius: 1rem;
+    padding: 0px;
+}
+
+.productImage{
+	width: 100%;
+	height: 70%;
+	display: flex;
+	align-items: center;
+}
+
+.thumbnail {
+    max-width: 100%;
+    max-height: 100%;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    width: 100%;
+    height: 100%;
+	margin: 0;
+}
+.productName{
+	font-size: 1.1rem;
+	margin: 1rem 0 0.5rem 0;
+}
+
+.productPrice{
+	font-size: 1.4rem;
+}
+
+.getMore{
+    width: 80px;
+    height: 40px; 
+    object-fit: cover; 
+    background-color: transparent;
+    border: none;
+    display: flex;
+    margin-top: 2rem;
+    cursor:pointer;
+}
+
+.product_title {
+    width: 90%;
+    height: 2rem;
+    margin-top: 0.5rem;
+    line-height: 2rem;
+    text-align: left;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.product_price{
+    width: 90%;
+    display: grid; 
+    height: 2rem;
+    line-height: 2rem;
+    text-align: right;
+}
+
+.btnPage{
+    /* object-fit: cover;  */
+    display: flex;
+    outline: 0px;
+    border:0px;
+    width: 2rem;
+    height: 2rem;
+    margin: 0.3rem;
+    /* background-color: rgba(255, 255, 255, 0); */
+    cursor:pointer;
+    line-height: 2rem;
+    align-items: center;
+}
+
+#pageNavi{
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    line-height: 2rem;
+    align-items: center;
+
+}
+#ctegoryT{
+    font-size: 1.5rem;
+    text-align: start; 
+    margin-left: 0; 
+    margin-right: 0.5rem;
+}
+#numT{
+    text-align: start; 
+    margin: 0;
+}
+
+/* �꽌釉뚮찓�돱 */
+.sortType{
+    margin: 0;
+    display: inline-block;
+}
+.sortType a{
+    margin: 0;
+    width: 100px;
+    /* padding: 5px; */
+    text-align: center;
+}
+.smallmenu{
+    box-sizing: border-box;
+    padding: 0;
+}
+
+.smallmenu li{
+    float: left;
+    width: 7rem;
+    position: relative;
+    text-align: center;
+    line-height: 30px; 
+}
+.smallmenu a{
+    display: inline-block;
+    width: 100%;
+    
+}
+.submenu li:nth-child(1){
+    padding-top: 5px;
+}
+.submenu li:last-child{
+    padding-bottom: 5px;
+}
+.actA:hover, .actA.active{
+    color: rgb(103, 175, 204);
+}
+
+.smallmenu li:hover ul{
+    display: block;
+}
+
+.smallmenu .submenu{
+    background-color: white;
+    max-height: 0px;
+    /* overflow: hidden; */
+    display: none;
+    border-radius: 0.5rem;
+    position: absolute;
+    padding: 0;
+    border: 1px solid black;
+    /* background-color: antiquewhite; */
+}
+
+.smallmenu li a:hover + .submenu, nav .smallmenu .submenu:hover{
+    max-height: 500px;
+}
+
+.smallmenu .submenu a:hover{
+    
+    color: rgb(103, 175, 204);
+    
+}
+
+.remove{
+    margin: 0;
+    display: inline-block;
+    border: 1px solid gray;
+    /* �쐞  �삤 �븘�옒 �쇊履�*/
+    padding: 0.1rem 0.1rem 0.1rem 0.5rem;
+    border-radius: 0.4rem;
+}
+
+#submenu_type{
+    display: flex;
+    width: 100%;
+    height: 3rem;
+    margin-top: 1rem;
+    
+}
+
+#submenu_type ul{
+    display: inline;
+    align-self: center;
+    margin: 0;
+    padding-left: 1rem;
+}
+
+#submenu_type ul li {
+    float: left;
+    padding: 0 0.5rem;
+    align-items: start;
+    text-align: start;
+}
+hr{
+    margin: 1rem 0;
+}
+
+.btnPage:hover, .btnPage.active{
+    background-color: rgb(186, 233, 252);
+}

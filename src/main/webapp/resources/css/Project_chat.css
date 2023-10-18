@@ -1,0 +1,223 @@
+*{
+    box-sizing: border-box;
+    margin: 0 auto;
+    font-family: Pretendard;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('../font/Pretendard-Medium.otf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Pretendard_Light';
+    src: url('../font/Pretendard-Light.otf') format('truetype');
+}
+
+:root {
+    --border-radius: 0.5rem;
+    --border-color: #b0b0b0;
+    --main-color: rgb(0, 0, 0);
+    --main-color-hover: rgb(80, 80, 80);
+}
+
+ul{
+   list-style: none; 
+    color: black;
+}
+
+a{
+    color: black;
+    text-decoration: none;
+}
+
+body{
+    width: 100%;
+    height: 100%;
+
+}
+
+header{
+    width: 100%;
+    height: 1rem;
+}
+
+header a{
+    float: right;
+    line-height: 1.5rem;
+    margin-right: 0.5rem;
+    color: #8b8b8b;
+}
+
+main{
+    width: 100%;
+    height: 100%;
+}
+
+.thead{
+    width: 100%;
+    height: 6rem;
+    background-color: #d9caaa;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    border: 1px solid #bbae93;
+}
+
+.thead div{
+    margin: 0;
+}
+
+.thead .Product_image{
+    margin: 0 2rem 0 1rem;
+}
+
+.Product_image img{
+    width: 5rem;
+    height: 5rem;
+    border-radius: 70%;
+    overflow: hidden;
+   /*border-radius: 3rem;*/
+}
+
+.Product_info{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 70%;
+}
+
+.Product_title{
+    font-size: 1.3rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #454438;
+}
+
+.Product_subinfo{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    color: #454438;
+}
+
+.Product_seller{
+	color: #454438;
+}
+
+.Product_date{
+	color: #454438;
+}
+#backBtn{
+	color: #454438;
+}
+.chatRoom{
+	position: relative;
+    overflow: auto;
+    overflow-y: auto;
+    width: 100%;
+    background-color: rgb(249, 249, 249);
+}
+
+.tfoot{
+    width: 100%;
+    height: 8rem;
+    background-color: #d9caaa;
+    display: flex;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    border: 1px solid #bbae93;
+}
+
+.tfootBox{
+    width: 95%;
+    border: 1px solid #949058;
+    margin: 0.8rem;
+    background-color: white;
+    display: flex;
+}
+
+.chatContent{
+    margin: 0;
+    width: 95%;
+    height: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: none;
+    resize: none;
+    outline: none;
+}
+
+.chatSend{
+    margin: 0;
+    width: 2.5rem;
+    height: 100%;
+    border: none;
+    background-color: white;
+}
+
+.chatSend:hover{
+    fill: #8b8b8b;
+}
+
+.chatBox{
+    width: 100%;
+    padding: 0.3rem 1rem;
+    overflow: scroll;
+}
+
+.yourinfo, .myinfo{
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.myinfo{
+    text-align: right;
+}
+
+
+.yourChat, .myChat{
+    margin: 0;
+    max-width: 80%;
+    min-height: 2rem;
+    padding: 1rem;
+    color: rgb(242, 242, 242);
+    border-radius: 0.7rem;
+    word-break: break-all;
+    display: inline-block;
+}
+
+.yourId, .myId{
+	color: #454438;
+}
+
+.yourChat{
+    background-color: #3dc852;
+
+}
+
+
+.myChat{
+    background-color: rgb(48, 172, 255);
+    float: right;
+}
+
+.myDate{
+    float: right;
+    clear: right;
+    text-align: right;
+}
+
+
+.sendDate{
+    vertical-align: bottom;
+    font-size: 0.9rem;
+    color: rgb(138, 138, 138);
+    margin-top: 0.4rem;
+    width: 100%;
+    display: inline-block;
+
+}

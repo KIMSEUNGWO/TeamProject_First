@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="july.lease.dao.product.ProductMapper">
+
+	<insert id="save">
+        <selectKey keyProperty="productId" resultType="Long" order="BEFORE">
+            select seq_product_id.nextval
+			from dual
+        </selectKey>
+        insert into product(product_id, member_id, category_id, product_name,
+        				    product_price, product_content, location,
+        				    product_create_date, product_end_status, product_status, product_visit_count)
+		values(#{productId}, #{memberId}, #{categoryId}, #{productName},
+			   #{productPrice}, #{productContent}, #{location}, sysdate, 'N', 1, 0)
+    </insert>
+    
+	<select id="findByProductId" resultType="Product">
+		select product_id, member_id, category_id, product_name,
+			   product_price, product_content, location,
+        	   product_create_date, product_end_status, product_status
+			   from product
+			   where product_id = #{productId}
+	</select>
+	
+	
+	<select id="findAllForHome" resultType="Product">
+		select product_id, product_name, product_price
+		from product
+	</select>
+	
+	<select id="findByProductIdForEdit" resultType="Product">
+		select a.member_id, a.product_name, a.product_price,
+			   b.category_id, b.category_id3, a.product_content,
+			   a.product_end_status, a.location
+		from product a
+		inner join category b
+    		on a.category_id = b.category_id
+		where a.product_id = #{productId}
+	</select>
+	
+	<select id="findRoomNo" resultType="Long">
+		select room_no
+		from message
+		where my_id=#{myId} and product_id=#{productId}
+	</select>
+	
+	<update id="editProduct">
+		update product
+		set category_id = #{product.categoryId},
+    		product_name = #{product.productName},
+    		product_price = #{product.productPrice},
+    		product_content = #{product.productContent},
+    		location = #{product.region1} || ' ' || #{product.region2}
+		where product_id = #{productId}
+	</update>
+	
+	<select id="findByMemberIdExceptProductWithProductId" resultType="july.lease.dto.ProductListDto">
+		SELECT member_nickname, product_id, product_name, 
+			   product_price, upload_image_name, store_image_name
+		FROM (
+		  SELECT
+		    b.member_nickname,
+		    a.product_id,
+		    a.product_name,
+		    a.product_price,
+		    c.upload_image_name,
+		    c.store_image_name,
+		    c.product_image_id,
+		    a.product_create_date,
+		    ROW_NUMBER() OVER (PARTITION BY a.product_id ORDER BY c.product_image_id) AS rn
+		  FROM product a
+		  LEFT JOIN member b ON a.member_id = b.member_id
+		  LEFT JOIN product_image c ON a.product_id = c.product_id
+		  WHERE b.member_id = #{memberId} AND a.product_id != #{productId}
+		)
+		WHERE rn = 1
+		ORDER BY product_create_date DESC
+	</select>
+
+	<select id="findByProductIdForProductDetail" resultType="Product">
+		select a.member_id, a.product_name, a.product_price,
+			   b.category_id, b.category_id2, b.category_name, 
+			   CASE b.category_id3
+	           WHEN 1 THEN '취침용품'
+	           WHEN 2 THEN '취사용품'
+	           WHEN 3 THEN '테이블'
+	           WHEN 4 THEN '기타'
+       		   END AS category_name2, 
+       		   a.product_content,
+			   a.product_end_status, a.location, a.product_visit_count, to_char(a.product_create_date, 'yyyy-mm-dd') as product_create_date
+		from product a
+		inner join category b
+    		on a.category_id = b.category_id
+		where a.product_id = #{productId}
+	</select>
+	
+	<update id="delete">
+		update product
+		set product_end_status = 'Y'
+		where product_id = #{productId}
+	</update>
+	
+	<update id="reRent">
+		update product
+		set product_end_status = 'N'
+		where product_id = #{productId}
+	</update>
+	
+	<update id="addVisitCount">
+        <selectKey keyProperty="responseDto.productVisitCount" resultType="int" order="AFTER">
+            select product_visit_count
+			from product
+			where product_id = #{productId}
+        </selectKey>
+        update product
+        set product_visit_count = product_visit_count + 1
+        where product_id = #{productId}
+    </update>
+    
+    <select id="findNicknameByProductId" resultType="String">
+    	select a.member_nickname
+		from member a
+		inner join product b
+		on a.member_id = b.member_id
+		where product_id = #{productId}
+    </select>
+
+</mapper>

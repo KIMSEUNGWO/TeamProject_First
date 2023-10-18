@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="july.lease.dao.list.ListMapper">
+
+	<select id="getList" resultType="july.lease.dto.ListDto"> <!-- 판매중지가 된 물건리스트 조회 -->
+		SELECT PRODUCT.PRODUCT_ID as productId, STORE_IMAGE_NAME as storeImageName, PRODUCT_NAME as productName, TO_CHAR(PRODUCT_PRICE, 'FM999,999,999') as productPrice
+		FROM PRODUCT
+		
+		<!-- 물품사진중 한개만가져옴 -->
+		LEFT JOIN (
+		    SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+		    FROM PRODUCT_IMAGE
+		) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		JOIN MEMBER ON (PRODUCT.MEMBER_ID = MEMBER.MEMBER_ID)
+		<!-- 희망대여일에 대한 조건 -->
+		<if test="startDate != '' and endDate != ''">
+			JOIN (SELECT PRODUCT_ID, RENT_ABLE_START_DATE, RENT_ABLE_END_DATE
+			        FROM RENT_DATE
+			        WHERE TO_DATE(#{startDate}, 'YYYY-MM-DD') BETWEEN RENT_ABLE_START_DATE AND RENT_ABLE_END_DATE
+			        	AND TO_DATE(#{endDate}, 'YYYY-MM-DD') BETWEEN RENT_ABLE_START_DATE AND RENT_ABLE_END_DATE
+			        ) R ON (R.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		</if>
+		<choose>
+			<when test="category != '' and category != null">
+			JOIN (SELECT C1.CATEGORY_ID AS CATEGORY_ID, C1.CATEGORY_NAME AS C1NAME, C2.CATEGORY_ID AS CATEGORY_ID2, C2.CATEGORY_NAME AS C2NAME
+			        FROM CATEGORY C1
+			        JOIN CATEGORY C2 ON (C1.CATEGORY_ID2 = C2.CATEGORY_ID)
+			        ) C ON (C.CATEGORY_ID = PRODUCT.CATEGORY_ID)
+			WHERE PRODUCT_END_STATUS = 'N' AND #{category} in (C1NAME, C2NAME) 
+			</when>
+			<otherwise>		
+			WHERE PRODUCT_END_STATUS = 'N' AND (PRODUCT_NAME LIKE '%' || #{searchWord} || '%' OR MEMBER_NICKNAME LIKE '%' || #{searchWord} || '%' )
+			</otherwise>
+		</choose>
+			
+		
+		<!-- 정렬조건 -->
+		<if test="sort == 'popular'"> ORDER BY PRODUCT_VISIT_COUNT DESC </if>
+		<if test="sort == 'recently'"> ORDER BY PRODUCT_CREATE_DATE </if>
+		<if test="sort == 'rowPrice'"> ORDER BY PRODUCT_PRICE  </if>
+		<if test="sort == 'highPrice'"> ORDER BY PRODUCT_PRICE DESC </if>
+		
+	</select>
+	<select id="getListAJAX" resultType="july.lease.dto.ListDto">
+		SELECT productId, storeImageName, productName, productPrice
+		FROM (
+		    SELECT PRODUCT.PRODUCT_ID as productId, STORE_IMAGE_NAME as storeImageName, PRODUCT_NAME as productName, TO_CHAR(PRODUCT_PRICE, 'FM999,999,999') as productPrice, 
+		    		ROW_NUMBER() OVER (
+		    		<if test="sort == 'popular'"> ORDER BY PRODUCT_VISIT_COUNT DESC </if>
+					<if test="sort == 'recently'"> ORDER BY PRODUCT_CREATE_DATE </if>
+					<if test="sort == 'rowPrice'"> ORDER BY PRODUCT_PRICE  </if>
+					<if test="sort == 'highPrice'"> ORDER BY PRODUCT_PRICE DESC </if>
+		    		) AS RNUM
+		    FROM PRODUCT
+			<!-- 물품사진중 한개만가져옴 -->
+			LEFT JOIN (
+			    SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+			    FROM PRODUCT_IMAGE
+			) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+			JOIN MEMBER ON (PRODUCT.MEMBER_ID = MEMBER.MEMBER_ID)
+			<!-- 희망대여일에 대한 조건 -->
+			<if test="startDate != '' and endDate != ''">
+			JOIN (SELECT PRODUCT_ID, RENT_ABLE_START_DATE, RENT_ABLE_END_DATE
+			        FROM RENT_DATE
+			        WHERE TO_DATE(#{startDate}, 'YYYY-MM-DD') BETWEEN RENT_ABLE_START_DATE AND RENT_ABLE_END_DATE
+			        	AND TO_DATE(#{endDate}, 'YYYY-MM-DD') BETWEEN RENT_ABLE_START_DATE AND RENT_ABLE_END_DATE
+			        ) R ON (R.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+			</if>
+			<choose>
+				<when test="category != '' and category != null">
+				JOIN (SELECT C1.CATEGORY_ID AS CATEGORY_ID, C1.CATEGORY_NAME AS C1NAME, C2.CATEGORY_ID AS CATEGORY_ID2, C2.CATEGORY_NAME AS C2NAME
+				        FROM CATEGORY C1
+				        JOIN CATEGORY C2 ON (C1.CATEGORY_ID2 = C2.CATEGORY_ID)
+				        ) C ON (C.CATEGORY_ID = PRODUCT.CATEGORY_ID)
+				WHERE PRODUCT_END_STATUS = 'N' AND #{category} in (C1NAME, C2NAME) 
+				</when>
+				<otherwise>		
+				WHERE PRODUCT_END_STATUS = 'N' AND (PRODUCT_NAME LIKE '%' || #{searchWord} || '%' OR MEMBER_NICKNAME LIKE '%' || #{searchWord} || '%' )			
+				</otherwise>
+			</choose>
+			<!-- 정렬조건 -->
+			<if test="sort == 'popular'"> ORDER BY PRODUCT_VISIT_COUNT DESC </if>
+			<if test="sort == 'recently'"> ORDER BY PRODUCT_CREATE_DATE </if>
+			<if test="sort == 'rowPrice'"> ORDER BY PRODUCT_PRICE  </if>
+			<if test="sort == 'highPrice'"> ORDER BY PRODUCT_PRICE DESC </if>
+		    ) A
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<select id="getCount" resultType="String">
+	    SELECT count(product.product_id)
+	    FROM PRODUCT
+	    <if test="startDate != '' and endDate != ''">
+	    JOIN (SELECT PRODUCT_ID, RENT_ABLE_START_DATE, RENT_ABLE_END_DATE
+	            FROM RENT_DATE
+			        WHERE TO_DATE(#{startDate}, 'YYYY-MM-DD') BETWEEN RENT_ABLE_START_DATE AND RENT_ABLE_END_DATE
+			        	AND TO_DATE(#{endDate}, 'YYYY-MM-DD') BETWEEN RENT_ABLE_START_DATE AND RENT_ABLE_END_DATE
+	            ) R ON (R.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		</if>
+		<choose>
+			<when test="category != '' and category != null">
+			JOIN (SELECT C1.CATEGORY_ID AS CATEGORY_ID, C1.CATEGORY_NAME AS C1NAME, C2.CATEGORY_ID AS CATEGORY_ID2, C2.CATEGORY_NAME AS C2NAME
+			        FROM CATEGORY C1
+			        JOIN CATEGORY C2 ON (C1.CATEGORY_ID2 = C2.CATEGORY_ID)
+			        ) C ON (C.CATEGORY_ID = PRODUCT.CATEGORY_ID)
+			WHERE PRODUCT_END_STATUS = 'N' AND #{category} in (C1NAME, C2NAME) 
+			</when>
+			<otherwise>		
+			JOIN MEMBER ON (PRODUCT.MEMBER_ID = MEMBER.MEMBER_ID)
+			WHERE PRODUCT_END_STATUS = 'N' AND (PRODUCT_NAME LIKE '%' || #{searchWord} || '%' OR MEMBER_NICKNAME LIKE '%' || #{searchWord} || '%' )		
+			</otherwise>
+		</choose>
+	</select>
+</mapper>     
