@@ -1,4 +1,4 @@
-# :pushpin: 세탁 서비스 플랫폼
+# :pushpin: 캠핑용품 대여 플랫폼
 
 ## 1. 제작 기간 & 참여 인원
 
@@ -40,8 +40,9 @@
 대여금액과 대여해줄 수 있는 기간을 설정해놓으면 대여를 원하는 사용자가 신청을해 거래 확정을 받는 시스템입니다.
 
 ### 나의 역할
+
+-   메인페이지(리스트) 구현 `Controller : july/lease/controller/ListController.java` : [코드확인](https://github.com/KIMSEUNGWO/TeamProject_First/blob/main/src/main/java/july/lease/controller/ListController_ksw.java)
 -   마이페이지 구현 `Controller : july/lease/controller/MyPageController.java` : [코드확인](https://github.com/KIMSEUNGWO/TeamProject_First/blob/main/src/main/java/july/lease/controller/MyPageController_ksw.java) [코드확인2](https://github.com/KIMSEUNGWO/TeamProject_First/blob/main/src/main/java/july/lease/controller/MyPageRestController.java)
--   
 -   HTML, CSS 70% 제작 `HTML(JSP) : /webapp/WEB-INF/, CSS : /webapp/resouces/css/` 
 
 [PPT 자료보기](https://github.com/KIMSEUNGWO/TeamProject_First/blob/main/TrentPPT.pptx)
@@ -600,114 +601,76 @@ function drawingLine(){
 </div>
 </details>
 
+### 5.2. Interceptor의 사용과 PathVariable
+
+-   인터셉터를 적용시켜보고자 Mypage에 Interceptor를 설정해보았습니다.
 
 <details>
-<summary><b>Function 기능</b></summary>
+<summary><b>MyPageInterceptor</b></summary>
 <div markdown="1">
 
-`aug/laundry/enums/category/CategoryPriceCalculator.java`
+`july/lease/interceptor/MyPageInterceptor.java`
 
 ```java
-public enum CategoryPriceCalculator {
-    COMMON(value -> value),
-    PASS(value -> Math.round((Long)value * 0.85));
+@Slf4j
+public class MyPageInterceptor implements HandlerInterceptor{
+	
+	@Override
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+		
+		String requestURI = request.getRequestURI();
+		String requestURI2 = requestURI.replaceAll("/members/", "");
+		requestURI2 = requestURI2.substring(0, requestURI2.indexOf("/") == -1 ? requestURI2.length() : requestURI2.indexOf("/"));
+		String memberId = requestURI2; 
+		log.info("마이페이지 인증체크 인터셉터 실행 {}, memberId = {}", requestURI2, memberId);
 
-    private Function<Long, Long> expression;
+		HttpSession session = request.getSession();
+		log.info("sessionValue = {}", session.getAttribute("memberId"));
+		String sessionValue = String.valueOf(session.getAttribute("memberId"));
+		if (session == null || sessionValue == null || !memberId.equals(sessionValue)) {
+			log.info("미인증 사용자 요청");
+			log.info("접속사용자 = {}, 요청된 memberId = {}", sessionValue, memberId);
+			response.sendRedirect("/login?redirectURL=" + requestURI);
+			return false;
+		}
+		log.info("인증된 사용자 접속 승인");  
+		return true;
+	}
 
-    CategoryPriceCalculator(Function expression) {
-        this.expression = expression;
-    }
-
-    protected Long calculate(Long value) {
-        return this.expression.apply(value);
-    }
-
-    public Float percent() {
-        return this.expression.apply(100L) / 100.0f;
-    }
 }
-
 ```
+
+`july/lease/config/InterceptorWebConfig.java`
+
+```java
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		
+		// /members/ 이후 주소에 대한 인터셉터 (세션ID와 요청memberID 비교)
+		registry.addInterceptor(new MyPageInterceptor())
+				.order(1)
+				.addPathPatterns("/members/**") // /members/ 하위 전 myPageInterceptor 적용
+				.excludePathPatterns("/resources/js/**", "/resources/css/**", "/*.ico", "/error", "/members/add"); // 예외 URI
+				// members/add = 회원가입
+	}
+```
+
 
 </div>
 </details>
 
-### 5.2. 페이지 위치에 따른 footer 변화
-
--   페이지 위치에 따라 footer의 아이콘의 상태가 변경되는것을 구현하는데 그 목록에는 메인, 주문내역, 마이페이지가 있습니다.
--   기존에는 페이지마다 footer의 상태를 Model에 넣어반환하였으나 페이지가 계속 추가되면서 유지보수가 불가능하다는 느낌이 들었고, 이 부분을 개선하기 위해 Aspect를 도입했습니다.
--   AOP를 도입하면서 Aspect의 Class가 각 Controller에 의존하게되지만 기존에 사용했던 불필요한 코드들이 한번에 제거되었습니다.
-
-<details>
-<summary><b>Aspect 코드</b></summary>
-<div markdown="1">
-
-`aug/laundry/aspects/FooterAspect.java 의 일부`
+-   하지만 여기에는 문제가 있었습니다. PathVariable을 사용해 회원번호를 조회하게되면서 로그인을 하지않는 회원이 마이페이지로 접속할경우 경로가 이상해지는걸 확인했습니다.
+-   정상적인 경로는 members/(회원번호) 가 들어와야하지만 members// 이런식으로 경로가 설정되는데 이러한 경로는 인터셉터에서 회원아이디를 조회할때 문제가 생겼습니다.
+-   그래서 저는 인터셉터에서 아래와같이 수정하여 문제를 해결했습니다.
 
 ```java
-@Before("execution(* aug.laundry.controller.MainController.*(..))")
-public void mainpageAspect(JoinPoint joinPoint) {
-    log.info("MainPageController Aspect Before 실행 : {}", joinPoint.getSignature().getName());
-
-    Object[] args = joinPoint.getArgs();
-    for (Object arg : args) {
-        if (arg instanceof Model) {
-            ((Model) arg).addAttribute("footer", "main");
-            return;
-        }
-
-    }
-}
-```
-<img width="426" src="https://github.com/KIMSEUNGWO/TeamProject_Second/assets/128001994/d945ee7a-a7ac-4999-a222-bf95cb838a48">
-</div>
-</details>
-
+String requestURI = request.getRequestURI();
+String requestURI2 = requestURI.replaceAll("/members/", "");
+requestURI2 = requestURI2.substring(0, requestURI2.indexOf("/") == -1 ? requestURI2.length() : requestURI2.indexOf("/"));
+String memberId = requestURI2;
+  ```
 
 </br>
-
-## 6. 그 외 트러블 슈팅
-
-<details>
-<summary>AJAX 통신 시 MultipartFile 전송 실패</summary>
-<div markdown="1">
-
--   다수의 항목에 대한 다수의 Multipart 파일과 메세지 전송 시도 - 실패
--   MultipartFile JSON 변환후 시도 - 실패
--   RepairFormData ( List<MultipartFile>, String, String ) 객체 생성, Map<String, RepairFormData>를 FormData에 넣어서 전송 - 실패
--   RepairFormData ( String, String ) 분리, Map<String, RepairFormData>와 List<MultipartFile> 를 Controller에 항목개수만큼 전송 - 성공
-
-```java
-@PostMapping(value = "/repair/order")
-public @ResponseBody Map<String, Boolean> repairOrder(@SessionAttribute(name = SessionConstant.LOGIN_MEMBER, required = false) Long memberId,
-                                                  @SessionAttribute(name = SessionConstant.ORDERS_CONFIRM, required = false) Long ordersDetailId,
-                                                  @RequestPart("repairData") Map<String, RepairFormData> repairData,
-                                                  @RequestParam(name = "files", required = false) List<MultipartFile> files) {
-Map<String, Boolean> resultMap = new ConcurrentHashMap<>();
-System.out.println("files = " + files);
-
-// memberId, ordersDetailId == null 일경우 false 반환
-boolean status = repairService.valid(memberId, ordersDetailId);
-if (!status){
-    resultMap.put("status", false);
-    return resultMap;
-}
-Repair saveRepair = repairService.insertRepair(ordersDetailId, repairData, files);
-
-if (saveRepair != null) {
-    int saveFile = fileUploadService.saveFile(files, saveRepair.getRepairId(), FileUploadType.REPAIR);
-    log.info("saveFile = {}", saveFile);
-}
-log.info("repairData = {}", repairData);
-log.info("files = {}", files);
-
-return resultMap;
-}
-
-```
-
-</div>
-</details>
 
 </br>
 
@@ -715,55 +678,278 @@ return resultMap;
 
 > 프로젝트를 들어가며
 
- 첫번째 프로젝트에 이어 두번째도 팀장을 맡게 되었습니다. 주제에 대한 고민을 하다가 세탁소와 사용자를 매칭 및 배달하는 중계플랫폼을 주제로 고민하다가 사용자와 회사를 직접 매칭하는 세탁플랫폼을 주제로 선정하게되었습니다.
-
- 두번째 프로젝트의 규모가 클것이라고 예상했지만 그 예상보다 훨신 더 큰 프로젝트였습니다. 프로젝트를 한번밖에 안해본 저에겐 1달이 안되는 기간동안 마무리할 수 있을까 란 생각이 먼저 들었던것같습니다.
- 
- 하지만 그저 게시판정도를 만드는 프로젝트를 하고싶지는 않았습니다. 이제껏 배운걸 활용해서 만드는것도 중요하지만 안해본것을 스스로 공부해가며 활용해보는것이 더 중요하다고 생각했기 때문입니다
+ 첫 프로젝트에서 팀장을 맡게되었습니다. 어떤 이유에선지는 모르겠지만 추천이되어서 하게되어서 부담감을 가지고 시작하게 된것같습니다. 프로젝트에 대해서 전무한데 주제부터 시작해서 모든것을 이끌어가려고 하다보니 쉽지 않았습니다.
 
 
 > 프로젝트 과정속에서
 
-기존 사용하던 환경이
-- IDE STS -> IntelliJ 변경
-- JSP -> HTML, JSTL -> Thymeleaf 변경
+  제 역할은 마이페이지 제작이었습니다. 하지만 어쩌다보니 HTML과 CSS, 캘린더까지 맡게되어 업무가 생각보다 많았던것같습니다.
 
-이렇게 변경되었습니다.
+  그런데 메인페이지를 담당하던 사람이 학원을 그만두면서 그 역할을 제가 이어받게 되어 메인페이지안에 제품리스트를 제가 만들게 되었습니다. 
 
-당초 계획한 7명 중 1명이 개인적인 사유로 더 이상 프로젝트에 참여하지 못하게되었습니다. 1차, 2차 프로젝트 모두 한명씩 빠지게 되어 많이 아쉬웠습니다. 빠진인원에 대한 역할도 제가 맡게 되어 아침부터 저녁 10시까지 거의 매일을 코딩했던것같습니다.
-
-제 역활은 HTML, CSS, 세탁신청, 메인페이지였습니다. 프론트의 HTML과 CSS는 부트스트랩을 전혀 사용하지않았고, 모든 디자인을 저 혼자 담당했습니다. 왜냐하면 디자인의 일관성때문에 놓치고 싶지 않았기 때문입니다. 하지만 시간은 한정되어있고, 페이지수가 30장이 넘어가면서 일부페이지는 다른분들에게 프론트 업무를 넘겼습니다. 그리고 나머지 업무에 집중했는데, 세탁신청 페이지는 몇장되지않았지만 주문 과정이기때문에 검증할것도 많고 값을 주고받는게 정말 많았습니다.
-
+  Git, Github를 처음 사용해보았습니다.
 
 > 프로젝트를 마무리하며
 
-결국 제 시간까지 마무리 했습니다. 짧은 시간동안 정말 많은걸 했고, 한 동안 프로젝트에 몰입 할 수 있어서 좋은 경험이었던 것 같습니다.
-
-하지만 마무리를 하고 코드를 볼 수록 고치고 싶은 부분이 보여 아쉬움도 많이 남았습니다. 그래서 공부를 더하고 기존 코드를 리팩토링을 하고 배포까지 해보고싶단 생각이 들었습니다. 프로젝트 기간은 끝났지만 저는 이 프로젝트를 완전히 마무리 하고싶었습니다. 그래서 지금도 공부하다가 적용해보고 싶은부분은 프로젝트에 적용시키고 있습니다.
+  프로젝트를 마무리해보니 캘린더 하나의 제작기간이 길었던 만큼 기억에 남는건 캘린더밖에 없었던것같습니다. 그래도 나머지 부분에서는 크게 어려움을 느끼지 않고 잘 넘어갔던것 같습니다. 
 
 > 느낀점
 
-1. ENUM
+1. JSP의 불편함
    
-   이번 프로젝트에서 사용되었던 기술들 중 최고를 뽑으라고 한다면 ENUM 이라고 말하고싶습니다.
+   이번 프로젝트에서 가장 불편했던건 JSTL과 JSP였던것같습니다. JSTL의 사용은 간단하지만 코드가 지저분해지고 JSP파일을 직접 실행하지 못해 VSCode를 사용해 수정하곤 해야헸습니다.
 
-   공부를 하면서 ENUM의 활용에 대한 글을 읽어보았고, 이 부분을 Category에 적용시켜보았습니다. 그 결과 DB에서 하위카테고리와 자기참조로 상위카테고리를 가져오는 형식에서 DB를 사용하지않고 데이터만으로 카테고리를 조회할 수 있게 되었으며, 코드가 직관적이어서 유지보수 측면에서도 정말 좋아졌습니다. 또한 ENUM 안에 다양한 값을 열거해 하나로 묶어둘 수 있는 부분도 인상깊었습니다.
+2. 코드작성보단 Query문 작성이 대부분
+
+   제가 담당했던 마이페이지는 거의 모든 페이지가 query문으로 도배가 되어있습니다. 마이페이지 특성상 판매자와 구매자에 대한 총계, 부분합계 등 통계를 내야하는부분이 많았습니다.
+   이후 JPA에 대해서 공부했고, 리팩토링을 하면서 JPA로 변경하려고 합니다.
+
+<details>
+<summary><b>MyPageMapper.xml</b></summary>
+<div markdown="1">
+    
+   ```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="july.lease.dao.mypage.MyPageMapper">
+
+	<select id="findByName" resultType="String">
+		SELECT MEMBER_NAME
+		FROM MEMBER
+		WHERE member_id = #{memberId}
+	</select>
+	
+	<select id="findByOrderCount" resultType="Integer"> <!--내가 대여한 물건이 정상적으로 반납된 건수 -->
+		SELECT COUNT(ORDER_CONFIRM_STATUS)
+		FROM ORDERS
+		WHERE MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 5 <!-- 4 : 대여가 완료된 주문건 -->
+	</select>
+	
+	<select id="findBySellCount" resultType="Integer"> <!-- 판매건수 -->
+		SELECT COUNT(*)
+		FROM ORDERS
+		WHERE ORDER_CONFIRM_STATUS = 5 AND PRODUCT_ID IN (
+									                        SELECT PRODUCT_ID
+									                        FROM PRODUCT
+									                        WHERE MEMBER_ID = #{memberId}
+									                        )
+	</select>
+	
+	<select id="findByMyitemsCount" resultType="Integer"> <!--내 물건(현재 대여가능한 물건의 개수) -->
+		SELECT COUNT(*)
+		FROM PRODUCT
+		WHERE MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'N'
+	</select>
+	
+	<select id="findByWaitItems" resultType="Integer"> <!-- 대여확정을 기다리는 건수 -->
+		SELECT COUNT(ORDER_CONFIRM_STATUS)
+		FROM ORDERS
+		WHERE MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 2 <!-- 2 : 대기중인 건수 -->
+	</select>
+	
+	<select id="confirmCheck" resultType="july.lease.dto.MyPageMainInfoDto"> <!--현재 대여요청 -->
+			SELECT ORDERS.PRODUCT_ID as productId, P_IMAGE.STORE_IMAGE_NAME as productImage, PRODUCT_NAME as productName, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') as startDate, TO_CHAR(ORDER_RENT_END_DATE,'YYYY-MM-DD') as endDate, ORDER_RENT_END_DATE - ORDER_RENT_START_DATE + 1 as countDate, TO_CHAR(ORDER_PRICE, 'FM999,999,999') AS price, MEMBER.MEMBER_NICKNAME AS memberName, ORDERS.ORDER_CONFIRM_STATUS AS orderConfirmStatus, ORDERS.ORDER_ID AS orderId, ORDERS.MEMBER_ID AS memberId
+		    FROM ORDERS
+		    JOIN MEMBER ON (MEMBER.MEMBER_ID = ORDERS.MEMBER_ID)
+		    JOIN PRODUCT ON (ORDERS.PRODUCT_ID =  PRODUCT.PRODUCT_ID)
+		    LEFT JOIN (
+		        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+		        FROM PRODUCT_IMAGE
+		    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		    WHERE PRODUCT.MEMBER_ID = ${memberId} AND ORDER_CONFIRM_STATUS IN (2, 3)
+		    ORDER BY ORDER_CREATE_DATE DESC
+	</select>
+	
+		<select id="confirmCheckAJAX" resultType="july.lease.dto.MyPageMainInfoDto"> <!--현재 대여요청 -->
+		SELECT A.productId productId, A.productImage as productImage, A.productName as productName, A.startDate as startDate, A.endDate endDate, A.countDate as countDate, A.price as price, A.memberName as memberName,  A.orderConfirmStatus AS orderConfirmStatus, A.ORDER_ID as orderId, A.memberId as memberId
+		FROM (
+		    SELECT ORDERS.PRODUCT_ID as productId, P_IMAGE.STORE_IMAGE_NAME as productImage, PRODUCT_NAME as productName, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') as startDate, TO_CHAR(ORDER_RENT_END_DATE,'YYYY-MM-DD') as endDate, ORDER_RENT_END_DATE - ORDER_RENT_START_DATE + 1 as countDate, TO_CHAR(ORDER_PRICE, 'FM999,999,999') AS price, MEMBER.MEMBER_NICKNAME AS memberName,  ORDERS.ORDER_CONFIRM_STATUS AS orderConfirmStatus, ORDERS.ORDER_ID AS ORDER_ID, ORDERS.MEMBER_ID AS memberId, ROW_NUMBER() OVER (ORDER BY ORDER_CREATE_DATE DESC) AS RNUM
+		    FROM ORDERS
+		    JOIN MEMBER ON (MEMBER.MEMBER_ID = ORDERS.MEMBER_ID)
+		    JOIN PRODUCT ON (ORDERS.PRODUCT_ID =  PRODUCT.PRODUCT_ID)
+		    LEFT JOIN (
+		        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+		        FROM PRODUCT_IMAGE
+		    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		    WHERE PRODUCT.MEMBER_ID = ${memberId} AND ORDER_CONFIRM_STATUS IN (2, 3)
+		    ORDER BY ORDER_CREATE_DATE DESC
+		) A
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<select id="findBySellingItem" resultType="Integer"> <!-- 현재 판매중인 물건의 갯수 -->
+		SELECT COUNT(PRODUCT_ID) 
+		FROM PRODUCT
+		WHERE MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'N'
+	</select>
+	
+	<select id="todayReturnItem" resultType="Integer"> <!-- 오늘 반납예정인 물건의 갯수 -->
+		SELECT COUNT(ORDER_ID)
+		FROM ORDERS
+		JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		WHERE PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 4 AND TO_CHAR(SYSDATE, 'YYYYMMDD') = TO_CHAR(ORDER_RENT_END_DATE, 'YYYYMMDD')
+	</select>
+	
+	<select id="totalBenefit" resultType="String"> <!-- 총 수익금 -->
+		SELECT TO_CHAR(COALESCE(SUM(ORDER_PRICE),0), 'FM999,999,999')
+		FROM ORDERS
+		JOIN PRODUCT ON (PRODUCT.PRODUCT_ID = ORDERS.PRODUCT_ID)
+		WHERE PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 5
+	</select>
+
+	<select id="itemSellList" resultType="july.lease.dto.MyPageSellItemsDto"> <!-- 4: 거래가 끝난 물건 단위의 총 대여수, 총 수익금 조회 -->
+		SELECT PRODUCT.PRODUCT_ID AS itemId, STORE_IMAGE_NAME as itemImage, PRODUCT_NAME as itemTitle, TO_CHAR(PRODUCT_PRICE, 'FM999,999,999') AS itemPrice, PRODUCT_STATUS as itemStatus, COALESCE(A.CNT, 0) as itemTotalCount, COALESCE(TO_CHAR(A.TOTAL, 'FM999,999,999'), '0') as itemTotalPrice
+		FROM PRODUCT
+		LEFT JOIN (
+				        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+				        FROM PRODUCT_IMAGE
+				    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		LEFT JOIN (
+		            SELECT PRODUCT.PRODUCT_ID, COUNT(PRODUCT.PRODUCT_ID) AS CNT, SUM(ORDER_PRICE) AS TOTAL
+		            FROM ORDERS
+		            JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		            WHERE PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 5
+		            GROUP BY PRODUCT.PRODUCT_ID
+		            ) A ON (A.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		WHERE PRODUCT.MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'N'
+		ORDER BY PRODUCT.PRODUCT_ID
+	</select>
+	
+	<select id="itemSellListAJAX" resultType="july.lease.dto.MyPageSellItemsDto"> <!-- 4: 거래가 끝난 물건 단위의 총 대여수, 총 수익금 조회 -->
+		SELECT A.itemId as itemId, A.itemImage as itemImage, A.itemName as itemTitle, A.PRODUCT_PRICE as itemPrice, A.itemStatus as itemStatus, A.itemTotalCount as itemTotalCount, A.itemTotalPrice as itemTotalPrice
+		FROM (
+				SELECT PRODUCT.PRODUCT_ID AS itemId, STORE_IMAGE_NAME as itemImage, PRODUCT_NAME as itemName, TO_CHAR(PRODUCT_PRICE, 'FM999,999,999') AS PRODUCT_PRICE, PRODUCT_STATUS as itemStatus, COALESCE(A.CNT, 0) as itemTotalCount, COALESCE(TO_CHAR(A.TOTAL, 'FM999,999,999'), '0') as itemTotalPrice, ROW_NUMBER() OVER (ORDER BY PRODUCT.PRODUCT_ID) AS RNUM
+				FROM PRODUCT
+				LEFT JOIN (
+						        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+						        FROM PRODUCT_IMAGE
+						    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+				LEFT JOIN (
+				            SELECT PRODUCT.PRODUCT_ID, COUNT(PRODUCT.PRODUCT_ID) AS CNT, SUM(ORDER_PRICE) AS TOTAL
+				            FROM ORDERS
+				            JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+				            WHERE PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 5
+				            GROUP BY PRODUCT.PRODUCT_ID
+				            ) A ON (A.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+				WHERE PRODUCT.MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'N'
+				ORDER BY PRODUCT.PRODUCT_ID
+		    ) A
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	
+
+	<select id="endItems" resultType="july.lease.domain.Product"> <!-- 판매중지가 된 물건리스트 조회 -->
+		SELECT PRODUCT_ID, MEMBER_ID, CATEGORY_ID, PRODUCT_NAME, PRODUCT_PRICE, PRODUCT_CONTENT, LOCATION, PRODUCT_CREATE_DATE, PRODUCT_END_STATUS
+		FROM PRODUCT
+		WHERE MEMBER_ID = #{memberId} AND PRODUCT_END_STATUS = 'Y'
+	</select>
+	
+	<!-- 구매페이지 -->
+	
+	<select id="orderItems" resultType="july.lease.dto.MyPageOrderItemsDto"> <!-- 판매중지가 된 물건리스트 조회 -->
+		SELECT ORDERS.PRODUCT_ID AS productId, STORE_IMAGE_NAME as productImage, PRODUCT_NAME as productName, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') as startDate, TO_CHAR(ORDER_RENT_END_DATE, 'YYYY-MM-DD') as endDate, ORDER_RENT_END_DATE - ORDER_RENT_START_DATE + 1 AS rentDate, MEMBER_NICKNAME as sellerName, DECODE(ORDER_CONFIRM_STATUS, '1', '대여거절','2','대기중','3','대여확정', '4','대여중', '거래완료') as productStatus
+		FROM ORDERS
+		LEFT JOIN (
+				        SELECT PRODUCT_IMAGE.PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_IMAGE.PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+				        FROM PRODUCT_IMAGE
+				    ) P_IMAGE ON (ORDERS.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		JOIN MEMBER ON (MEMBER.MEMBER_ID = PRODUCT.MEMBER_ID)
+		WHERE ORDERS.MEMBER_ID = #{memberId}
+		ORDER BY ORDER_ID DESC
+	</select>
+	
+	<select id="orderItemsAJAX" resultType="july.lease.dto.MyPageOrderItemsDto"> <!-- 판매중지가 된 물건리스트 조회 -->
+		SELECT productId, productImage, productName, startDate, endDate, rentDate, sellerName, productStatus
+		FROM  (
+		    SELECT ORDERS.PRODUCT_ID AS productId, STORE_IMAGE_NAME as productImage, PRODUCT_NAME as productName, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') as startDate, TO_CHAR(ORDER_RENT_END_DATE, 'YYYY-MM-DD') as endDate, ORDER_RENT_END_DATE - ORDER_RENT_START_DATE + 1 AS rentDate, MEMBER_NICKNAME as sellerName, DECODE(ORDER_CONFIRM_STATUS, '1','대여거절','2','대기중','3','대여확정','4','대여중', '거래완료') as productStatus, ROW_NUMBER() OVER (ORDER BY ORDER_ID DESC) AS RNUM
+		    FROM ORDERS
+		    LEFT JOIN (
+					        SELECT PRODUCT_IMAGE.PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_IMAGE.PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+					        FROM PRODUCT_IMAGE
+					    ) P_IMAGE ON (ORDERS.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		    JOIN PRODUCT ON (ORDERS.PRODUCT_ID = PRODUCT.PRODUCT_ID)
+		    JOIN MEMBER ON (MEMBER.MEMBER_ID = PRODUCT.MEMBER_ID)
+		    WHERE ORDERS.MEMBER_ID = #{memberId}
+		    ORDER BY ORDER_ID DESC
+		    ) A
+		WHERE A.RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<select id="validConfirm1" resultType="Long"> <!-- 확정 취소버튼 클릭시 유효성검사 첫번째 / 해당 멤버가 해당 물품을 소유하고있는지 확인 -->
+		SELECT *
+		FROM PRODUCT
+		WHERE MEMBER_ID = #{memberId} AND PRODUCT_ID = #{productId}
+	</select>
+	
+	<select id="validConfirm2" resultType="Long"> <!-- 확정 취소버튼 클릭시 유효성검사 두번째 / 해당 주문번호가 해당 물품을 가르키고있는지 확인 -->
+		SELECT *
+		FROM ORDERS
+		WHERE ORDER_ID = #{orderId} AND PRODUCT_ID = #{productId}
+	</select>
+	
+	<update id="confirmUpdate"> <!-- 확정 취소버튼 클릭시 유효성검사 두번째 / 해당 주문번호가 해당 물품을 가르키고있는지 확인 -->
+		UPDATE ORDERS
+		SET ORDER_CONFIRM_STATUS = #{confirmId}
+		WHERE ORDER_ID = #{orderId} AND PRODUCT_ID = #{productId}
+	</update>
+	
+	<select id="sellItemsModal" resultType="july.lease.dto.MyPageSellitemsModalDto"> <!-- 대여중일때 모달창에 띄울 정보 조회 -->
+		SELECT PRODUCT.PRODUCT_ID AS productId, STORE_IMAGE_NAME AS productImage, PRODUCT_NAME AS productTitle, TO_CHAR(ORDER_RENT_START_DATE, 'YYYY-MM-DD') || ' ~ ' || TO_CHAR(ORDER_RENT_END_DATE, 'YYYY-MM-DD') AS rentDate, MEMBER_NAME AS rentMemberName
+		FROM ORDERS
+		JOIN MEMBER ON (ORDERS.MEMBER_ID = MEMBER.MEMBER_ID)
+		JOIN PRODUCT ON (PRODUCT.PRODUCT_ID = ORDERS.PRODUCT_ID)
+		LEFT JOIN (
+		        SELECT PRODUCT_ID, STORE_IMAGE_NAME, ROW_NUMBER() OVER (PARTITION BY PRODUCT_ID ORDER BY PRODUCT_IMAGE_ID) AS ROW_NUM
+		        FROM PRODUCT_IMAGE
+		    ) P_IMAGE ON (PRODUCT.PRODUCT_ID = P_IMAGE.PRODUCT_ID AND P_IMAGE.ROW_NUM = 1)
+		WHERE PRODUCT.PRODUCT_ID = #{productId} AND PRODUCT.MEMBER_ID = #{memberId} AND ORDER_CONFIRM_STATUS = 4 AND PRODUCT_STATUS = 2
+	</select>
+	
+	<update id="updatePw"> <!-- 개인정보수정(비밀번호변경) -->
+		UPDATE MEMBER
+		SET MEMBER_PASSWORD = #{pw}
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+	<update id="productRent"> <!-- 물품 대여중으로 변경 -->
+		UPDATE	PRODUCT
+		SET PRODUCT_STATUS = 2
+		WHERE PRODUCT_ID = #{productId}
+	</update>
+	
+	<update id="productReturn"> <!-- 물품 반납으로 변경 -->
+		UPDATE	PRODUCT
+		SET PRODUCT_STATUS = 1
+		WHERE PRODUCT_ID = #{productId}
+	</update>
+	
+	<select id="rentList" resultType="july.lease.dto.MyPageRentItemsDto"> <!-- 대여중일때 모달창에 띄울 정보 조회 -->
+		select a.order_id, b.product_id, b.product_name, to_char(a.order_rent_start_date, 'yyyy-mm-dd') as product_start_date,
+		       to_char(a.order_rent_end_date, 'yyyy-mm-dd') as product_end_date,
+		         (a.order_rent_end_date - a.order_rent_start_date) + 1 as product_date_count, '대여중' as product_status, p_image.store_image_name as product_image
+		from orders a
+		left join product b
+		    on a.product_id = b.product_id
+		left join member c
+		    on b.member_id = c.member_id
+		left join (
+		              select product_id, store_image_name, row_number() over (partition by product_id order by product_image_id) as row_num
+		              from product_image
+		          ) p_image on (b.product_id = p_image.product_id and p_image.row_num = 1)
+		where c.member_id = #{memberId} and a.order_confirm_status = 4 and b.product_status = 2
+	</select>
+</mapper>
+   ```
+</div>
+</details>
    
-   JAVA를 공부하면서 ENUM을 그저 상수를 저장하는 정도로 생각했었는데 이번 프로젝트를 하면서 생각이 완전히 바뀌었습니다.
-
-2. MVC 패턴에 대한 고민
-
-   Controller - Service - Repository 에 방향성을 두고 웹 개발을 했지만 프로젝트를 진행하면서 아쉬운점이 있었습니다. 팀 프로젝트를 진행하며 페이지별 Controller를 만들었는데 Service - Repository까지도 페이지별로 생성하고 거기에 맞는 코드를 작성했습니다.
-
-   처음에는 이게 문제가 될것이라고 생각하지 않았는데 개발이 진행되면서 재사용성과 유지보수 측면에서 너무 비효율적이라는 생각이 들었습니다. 기능별 모듈화도 잘 이루어지지 않았고, 이에 따라 재사용성도 크게 줄어들면서 불필요한 코드길이만 늘어나게 되었습니다. 개발해야하는 기간이 정해져있었고, 문제를 발견한 시점에 초반이 아니었기 때문에 전체적인 리팩토링은 진행하지 못한게 너무 아쉬었습니다. 그래서 프로젝트가 끝난 지금 공통된 로직들을 혼자서 리팩토링하며 다시 공부를 하고있습니다.
    
    
-4. DTO의 남발
+4. 첫 프로젝트
 
-   처음 프로젝트를 시작하며 ERD를 작성하고 그에 맞게 domain을 먼저 생성해두고 프로젝트를 진행했습니다. 그런데 의도와 다르게 domain은 전혀 사용되지않았고, form 데이터를 받고, 검증하는 DTO를 생성해 query문을 작성해 CRUD를 하며 기하급수적으로 DTO객체가 늘어나기 시작했습니다. 또 하나의 문제는 dto 객체들을 하나의 package에 담겨져있었고 어떤 테이블에 사용되는 객체인지 알기 어려웠습니다. 저는 이 문제를 해결하기 위해 프로젝트개발이 끝나고 혼자서 리팩토링을 진행중입니다. JPA를 사용해서 domain을 직접 사용했고, dto의 수를 줄여가며 일관성을 높히려고 노력중입니다. 또한 사용되어야하는 DTO는 service, repository 패키지에 dto객체를 넘겨 사용 위치를 명확하게 하려고하고있습니다.
+  이 프로젝트에 참여한 사람들은 모두 프로젝트에 대한 경험이 없던 사람들입니다. 프로젝트 시작부터 끝까지 유연하게 넘어가는 부분이 없었습니다. 많이 부족했고 깔끔하지 못한 프로젝트라고 할수있습니다. 누구나그렇듯 처음부터 잘할 수 없고 만족할만한 성과를 내기 어렵습니다. 저는 이 프로젝트를 더 업그레이드 시켜서 더 좋은 프로젝트로 완성시키고싶습니다. 
 
-   dto 를 많이 사용하면 문제가되는지는 사실 정확하게 모르겠습니다. 하지만 제가 생각했을 때 유지보수 측면에서 좋지 못한것같습니다. 테이블에 튜플이 증가하거나 삭제가 되어야한다고 했을 때, domain 객체에 검증 dto를 상황별로 만들었다고 가정하면 모든 dto를 모두 수정해야하는 문제가 있고, 수정하면서 생기는 예기치 못한 문제들이 추가로 발생할 수 있어서 저는 dto를 최대한 사용하지 않는 방향으로 개발하는것이 좋다고 생각합니다.
-
-5. git commit
-
-   결론부터 말하자면 commit과 push는 기능별로 해야한다고 느꼈습니다. 프로젝트가 끝나고 git을 확인해봤는데 메세지를 남기긴했지만 너무 포괄적이고 어떤부분을 어떻게 수정했는지 전혀 표시되어있지 않아 나중에 문제가 생길 수 도 있다고 생각했습니다. 저도 마찬가지로 수정해야할 부분이 생기면 이것저것 전체적으로 수정하고 모든 파일을 commit해서 한번에 올린적이 아주 많았습니다. 협업을 해야하는 프로젝트 특성상 다른사람이 봤을 때 직관적으로 변경된 부분을 찾을 수 있어야 하기에 git에서도 메세지 기능을 넣어준것같은데 이 부분이 전혀 활용되지 않았다는게 조금 아쉬웠습니다.
