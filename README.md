@@ -45,8 +45,6 @@
 -   마이페이지 구현 `Controller : july/lease/controller/MyPageController.java` : [코드확인](https://github.com/KIMSEUNGWO/TeamProject_First/blob/main/src/main/java/july/lease/controller/MyPageController_ksw.java) [코드확인2](https://github.com/KIMSEUNGWO/TeamProject_First/blob/main/src/main/java/july/lease/controller/MyPageRestController.java)
 -   HTML, CSS 70% 제작 `HTML(JSP) : /webapp/WEB-INF/, CSS : /webapp/resouces/css/` 
 
-[PPT 자료보기](https://github.com/KIMSEUNGWO/TeamProject_First/blob/main/TrentPPT.pptx)
-
 </br>
 
 ## 5. 핵심 트러블 슈팅
